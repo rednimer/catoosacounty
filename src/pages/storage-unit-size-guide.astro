@@ -13,7 +13,9 @@ import PageHeader from '../components/PageHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
+import { Image } from 'astro:assets';
 import { CONTACT } from '../data/site';
+import { IMAGES } from '../data/images';
 import {
   UNITS,
   UNIT_TYPE_LABEL,
@@ -140,6 +142,21 @@ const PACKING = [
       }
     </div>
   </section>
+
+  <!-- Decorative break between the size list and the packing advice. Purely
+       visual: nothing is written over it, so it needs no scrim and carries
+       empty alt text. -->
+  <div class="relative h-40 overflow-hidden sm:h-52" aria-hidden="true">
+    <Image
+      src={IMAGES.textureFrostedGlass.src}
+      alt=""
+      widths={[768, 1280, 1344]}
+      sizes="100vw"
+      loading="lazy"
+      decoding="async"
+      class="h-full w-full object-cover"
+    />
+  </div>
 
   <section class="bg-brand-50 py-16 sm:py-20">
     <div class="container-page">

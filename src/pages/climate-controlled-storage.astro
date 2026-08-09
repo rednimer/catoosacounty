@@ -16,7 +16,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
+import Figure from '../components/Figure.astro';
 import { CONTACT, ADDRESS } from '../data/site';
+import { IMAGES } from '../data/images';
 
 const crumbs = [
   { name: 'Climate Controlled Storage', href: '/climate-controlled-storage' },
@@ -101,6 +103,13 @@ const faqs = [
           electronics. A climate-controlled unit holds both temperature and humidity
           steady, so the cycle never happens.
         </p>
+
+        <Figure
+          image={IMAGES.interiorClimateCorridor}
+          sizes="(min-width: 1024px) 44rem, 100vw"
+          class="mt-10"
+          caption="Inside the climate-controlled building — interior access, no exposure to outside air."
+        />
 
         <h2 class="mt-14 text-headline font-semibold">What belongs in one</h2>
         <ul class="mt-8 grid gap-6 sm:grid-cols-2">

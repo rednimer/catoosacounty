@@ -2,8 +2,17 @@
 /**
  * Closing call-to-action band. Every page ends with one so there is always a
  * next step in view without the visitor having to scroll back up.
+ *
+ * The dark variant sits on the generated condensation texture. That image runs
+ * from near-white in one corner to deep navy in another, so white text on it
+ * unscrimmed would pass contrast in half the frame and fail in the other half.
+ * A fixed navy scrim at 88% opacity sits between the two: the texture still
+ * reads, and the effective background is close enough to solid brand-900 that
+ * white text stays above 12:1 wherever it lands.
  */
+import { Image } from 'astro:assets';
 import { CONTACT } from '../data/site';
+import { IMAGES } from '../data/images';
 
 interface Props {
   heading?: string;
@@ -21,9 +30,33 @@ const {
 const isDark = tone === 'dark';
 ---
 
-<section class:list={[isDark ? 'bg-brand-900' : 'bg-brand-50', 'py-16 sm:py-20']}>
-  <div class="container-page text-center">
-    <h2 class:list={['text-headline font-bold', isDark && 'text-white']}>
+<section
+  class:list={[
+    'relative isolate overflow-hidden py-16 sm:py-20',
+    isDark ? 'bg-brand-900' : 'bg-brand-50',
+  ]}
+>
+  {
+    isDark && (
+      <>
+        <Image
+          src={IMAGES.textureCondensation.src}
+          alt=""
+          widths={[768, 1280, 1344]}
+          sizes="100vw"
+          loading="lazy"
+          decoding="async"
+          class="absolute inset-0 -z-10 h-full w-full object-cover"
+        />
+        {/* Scrim. Without it the near-white corner of the texture drops white
+            text to roughly 1.1:1. */}
+        <div class="absolute inset-0 -z-10 bg-brand-900/[0.88]" aria-hidden="true" />
+      </>
+    )
+  }
+
+  <div class="container-page relative text-center">
+    <h2 class:list={['text-headline font-semibold', isDark && 'text-white']}>
       {heading}
     </h2>
     <p

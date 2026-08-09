@@ -173,6 +173,14 @@ assume 24/7, and never overstate gate access. Until confirmed the site says
 - Office on site (the directions reference "our office on the right")
 - U-Haul affiliation for payments and reservations
 
+**Partially evidenced by the owner's photos (2026-08-09) — still not claimed on the
+site.** The exterior shot shows what appear to be **camera housings mounted along
+the building eaves**, and the units are individually numbered. That is real
+evidence for two items on the list below, but a photograph of a housing is not
+confirmation that the cameras are live, recorded or monitored, and "video
+surveillance" is precisely the kind of claim a customer relies on. Ask the owner
+before putting it on the site.
+
 `[GAP]` **Unverified — do NOT claim without owner confirmation.** Every one of these
 appeared as fact in the May build with no source:
 
@@ -275,13 +283,24 @@ the lead is captured.
 existing review count and rating, whether the owner wants the "Climate Controlled" long
 name as the GBP name, and any competitor they specifically want to outrank.
 
-`[GAP]` **Photography — there is none.** The live site has no facility photos and the May
-build shipped with an empty `images/` directory. Every photo request in the playbook
-applies here, and this is the single biggest content gap:
+**Photography — partly supplied 2026-08-09.** The owner provided five usable shots,
+confirmed as this facility: two exteriors of the green drive-up doors, two interiors
+of the climate-controlled corridor, and one drive aisle. Originals are in
+`_source/images/`; the registry and alt text are in `src/data/images.ts`.
 
-- The office and the turn off Mack Smith Road ("after the second house")
+Two constraints worth recording:
+
+- **They are web-sized, not camera originals** — 372x270 to 996x538. Astro does not
+  upscale, so none of them can go full-bleed without visibly softening, and every
+  placement on the site is constrained accordingly. **Ask for the originals**; it is
+  a one-email fix that would materially improve the homepage.
+- **The doors are green** (`#416152`, sampled from the photo). That is now a palette
+  token, `door-*`, so real photos sit with the brand rather than fighting it.
+
+`[GAP]` Still missing, in priority order:
+
+- The office, and the turn off Mack Smith Road ("after the second house")
 - The gate and keypad
-- A climate-controlled interior hallway
-- A drive-up unit with the door open
 - Signage from Cloud Springs Road
-- The RV/boat area, if it exists
+- A drive-up unit with the door open and something inside it for scale
+- Full-resolution versions of the five already supplied

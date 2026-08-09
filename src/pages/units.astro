@@ -11,7 +11,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
+import Figure from '../components/Figure.astro';
 import { CONTACT } from '../data/site';
+import { IMAGES } from '../data/images';
 import {
   UNITS,
   UNIT_TYPE_LABEL,
@@ -137,7 +139,8 @@ const crumbs = [{ name: 'Units & Pricing', href: '/units' }];
       }
     </ul>
 
-    <div class="mt-12 rounded-card bg-brand-50 p-6 sm:p-8">
+    <div class="mt-12 grid items-center gap-8 rounded-card bg-brand-50 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div>
       <h2 class="text-xl font-semibold">Not sure which one?</h2>
       <p class="mt-2 max-w-2xl leading-relaxed text-ink-600">
         The most common mistake is renting one size too small and then paying to move
@@ -152,6 +155,13 @@ const crumbs = [{ name: 'Units & Pricing', href: '/units' }];
           Call {CONTACT.phoneDisplay}
         </a>
       </div>
+      </div>
+      <Figure
+        image={IMAGES.exteriorDriveAisle}
+        sizes="(min-width: 1024px) 22rem, 100vw"
+        ratio="4/3"
+        grade
+      />
     </div>
   </section>
 

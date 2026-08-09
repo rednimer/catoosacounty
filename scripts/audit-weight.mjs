@@ -63,6 +63,40 @@ if (oversized.length) {
   );
 }
 
+/**
+ * ── Unprocessed source images ────────────────────────────────────────────────
+ * The size ceiling above is a blunt instrument and it missed the real failure.
+ * A registered-but-unrendered PNG shipped at 265 kB — under the 500 kB limit, so
+ * the audit passed it while the build carried a raw source file five times the
+ * size of its optimised sibling.
+ *
+ * Everything routed through Astro's <Image> comes out as .webp or .avif, so any
+ * .png/.jpg/.jpeg sitting in _astro/ has bypassed the pipeline by definition.
+ * Flag it regardless of size.
+ *
+ * (Files in public/ are intentionally unprocessed and are not checked here.)
+ */
+const UNPROCESSED = new Set(['.png', '.jpg', '.jpeg']);
+const unprocessed = files
+  .filter((f) => relative(DIST, f.path).replace(/\\/g, '/').startsWith('_astro/'))
+  .filter((f) => UNPROCESSED.has(extname(f.path).toLowerCase()))
+  .sort((a, b) => b.size - a.size);
+
+if (unprocessed.length) {
+  failed = true;
+  console.error(
+    `\n✗ ${unprocessed.length} unoptimised source image(s) in _astro/ ` +
+      '(everything through <Image> is .webp/.avif):\n',
+  );
+  for (const f of unprocessed) {
+    console.error(`    ${kb(f.size).padStart(10)}  ${relative(DIST, f.path)}`);
+  }
+  console.error(
+    '\n  A bare `import` in src/data/images.ts is enough to emit the original,\n' +
+      '  even if no page ever renders it. Render it via <Image>, or drop the import.\n',
+  );
+}
+
 if (total > MAX_TOTAL_BYTES) {
   failed = true;
   console.error(`✗ Total build ${mb(total)} exceeds ceiling ${mb(MAX_TOTAL_BYTES)}\n`);

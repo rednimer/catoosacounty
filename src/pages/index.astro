@@ -9,16 +9,18 @@
  * facility publicly differentiates on, it is what the directory listings put in the
  * business name, and North Georgia humidity makes it an easy argument to win.
  *
- * There are no photographs yet (CONTENT-SOURCE.md §11), so the hero is typographic
- * rather than a stock image. A stock photo of someone else's facility would be a
- * lie in the same category as the fake reviews the last build shipped.
+ * Photography arrived from the owner 2026-08-09. It is web-sized rather than
+ * camera originals, so every photo here is rendered inside a constrained column
+ * and never full-bleed — see the resolution note in src/data/images.ts.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
+import Figure from '../components/Figure.astro';
 import { SITE, CONTACT, ADDRESS, HOURS, FEATURES, SERVICE_AREA } from '../data/site';
 import { UNITS, CATALOGUE_PROVISIONAL, PRICING_AVAILABLE } from '../data/units';
+import { IMAGES } from '../data/images';
 
 const faqs = [
   {
@@ -56,61 +58,48 @@ const faqs = [
     hero would undercut that on first impression.
   -->
   <section class="frost-field relative overflow-hidden border-b border-brand-200/60">
-    <div class="container-page relative py-20 sm:py-28 lg:py-32">
-      <div class="max-w-3xl">
-        <p class="eyebrow">
-          Rossville &middot; Fort Oglethorpe &middot; Catoosa County
-        </p>
-        <h1 class="mt-5 text-display font-semibold leading-[1.03]">
-          Storage that holds its
-          <span class="text-accent-700">temperature</span>.
-        </h1>
-        <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-600 sm:text-xl">
-          Climate-controlled units for the things that warp, rust and mildew in a
-          Georgia summer — plus drive-up units for everything that does not. Both
-          on one property off Cloud Springs Road.
-        </p>
+    <div class="container-page relative py-16 sm:py-20 lg:py-24">
+      <!--
+        Two columns rather than a full-bleed photo. The source images top out at
+        996px wide (see images.ts), so a full-width hero would render soft — and
+        softer again on a 2x display. Constrained to roughly half the grid it
+        stays sharp, and the frost field carries the width instead.
+      -->
+      <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+        <div>
+          <p class="eyebrow">
+            Rossville &middot; Fort Oglethorpe &middot; Catoosa County
+          </p>
+          <h1 class="mt-5 text-display font-semibold leading-[1.03]">
+            Storage that holds its
+            <span class="text-accent-700">temperature</span>.
+          </h1>
+          <p class="mt-6 text-lg leading-relaxed text-ink-600 sm:text-xl">
+            Climate-controlled units for the things that warp, rust and mildew in
+            a Georgia summer — plus drive-up units for everything that does not.
+            Both on one property off Cloud Springs Road.
+          </p>
 
-        <div class="mt-9 flex flex-wrap gap-3">
-          <a href="/reserve" class="btn-primary">Check availability</a>
-          <a href={CONTACT.phoneHref} class="btn-secondary">
-            Call {CONTACT.phoneDisplay}
-          </a>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a href="/reserve" class="btn-primary">Check availability</a>
+            <a href={CONTACT.phoneHref} class="btn-secondary">
+              Call {CONTACT.phoneDisplay}
+            </a>
+          </div>
+
+          <p class="mt-8 text-sm text-ink-600">
+            {ADDRESS.formatted}
+            {!HOURS.published && <> &middot; {HOURS.fallbackNote}</>}
+          </p>
         </div>
 
-        <p class="mt-8 text-sm text-ink-600">
-          {ADDRESS.formatted}
-          {!HOURS.published && <> &middot; {HOURS.fallbackNote}</>}
-        </p>
+        <Figure
+          image={IMAGES.interiorClimateCorridor}
+          sizes="(min-width: 1024px) 42rem, 100vw"
+          ratio="4/3"
+          priority
+        />
       </div>
-
-      <!--
-        Thermometer + humidity droplet, the direction's icon pair, drawn as a
-        single decorative mark. Hidden below lg: at narrow widths it would either
-        crowd the headline or shrink into noise.
-      -->
-      <svg
-        class="pointer-events-none absolute right-4 top-1/2 hidden h-64 w-64
-               -translate-y-1/2 text-accent-500/25 lg:block xl:right-12 xl:h-72 xl:w-72"
-        viewBox="0 0 120 120"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M52 20a9 9 0 0 1 18 0v46a20 20 0 1 1-18 0V20Z"
-          stroke="currentColor"
-          stroke-width="2.5"
-        ></path>
-        <circle cx="61" cy="86" r="9" fill="currentColor" opacity="0.5"></circle>
-        <path d="M61 78V40" stroke="currentColor" stroke-width="5" stroke-linecap="round"></path>
-        <path d="M78 34h14M78 46h9M78 58h14M78 70h9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
-        <path
-          d="M24 44c0 0-11 12-11 19a11 11 0 0 0 22 0c0-7-11-19-11-19Z"
-          stroke="currentColor"
-          stroke-width="2.5"
-          stroke-linejoin="round"
-        ></path>
-      </svg>
     </div>
   </section>
 
@@ -124,7 +113,14 @@ const faqs = [
       </p>
 
       <div class="mt-10 grid gap-6 md:grid-cols-2">
-        <article class="card">
+        <article class="card !p-0 overflow-hidden">
+          <Figure
+            image={IMAGES.interiorClimateCorridorAlt}
+            sizes="(min-width: 768px) 34rem, 100vw"
+            ratio="16/9"
+            class="[&>div]:rounded-none [&>div]:border-0 [&>div]:border-b [&>div]:border-brand-200/70"
+          />
+          <div class="p-6">
           <h3 class="text-xl font-bold">Climate controlled</h3>
           <p class="mt-3 leading-relaxed text-ink-600">
             Temperature and humidity controlled. Rossville sits in a humid
@@ -154,9 +150,18 @@ const faqs = [
           >
             More on climate control
           </a>
+          </div>
         </article>
 
-        <article class="card">
+        <article class="card !p-0 overflow-hidden">
+          <Figure
+            image={IMAGES.exteriorGreenDoors}
+            sizes="(min-width: 768px) 34rem, 100vw"
+            ratio="16/9"
+            grade
+            class="[&>div]:rounded-none [&>div]:border-0 [&>div]:border-b [&>div]:border-brand-200/70"
+          />
+          <div class="p-6">
           <h3 class="text-xl font-bold">Drive-up</h3>
           <p class="mt-3 leading-relaxed text-ink-600">
             Ground level, pull your car or trailer to the door and unload
@@ -185,6 +190,7 @@ const faqs = [
           >
             See sizes
           </a>
+          </div>
         </article>
       </div>
     </div>

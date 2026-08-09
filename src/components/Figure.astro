@@ -1,0 +1,88 @@
+---
+/**
+ * Photograph with consistent in-palette framing.
+ *
+ * Astro's <Image> handles format (AVIF/WebP), responsive widths and the explicit
+ * width/height that prevents layout shift. This wrapper adds the brand treatment
+ * and, more importantly, enforces the resolution ceiling from images.ts.
+ *
+ * ── ON GRADING ───────────────────────────────────────────────────────────────
+ * `grade` applies a deliberately mild cool shift: a touch of desaturation and a
+ * slight lift in blue. It exists because the exterior shots were taken in warm
+ * midday sun and sit oddly beside a navy-and-cyan palette.
+ *
+ * It is kept subtle on purpose. These are photographs of a real place a customer
+ * will drive to, and pushing green doors towards teal would make the site a
+ * misleading picture of the facility. The goal is "shot on the same afternoon as
+ * the rest of the brand", not "recoloured".
+ *
+ * Interiors are already cool and fluorescent-lit, so they default to ungraded.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+import { Image } from 'astro:assets';
+import type { SiteImage } from '../data/images';
+
+interface Props {
+  image: SiteImage;
+  /** Rendered width hints per breakpoint. Must respect image.maxDisplayWidth. */
+  sizes?: string;
+  /** Visible caption. Also useful for naming what the photo shows. */
+  caption?: string;
+  /** Mild cool grade, for warm/sunny exteriors. */
+  grade?: boolean;
+  /** Set on the one image above the fold; everything else stays lazy. */
+  priority?: boolean;
+  class?: string;
+  /** Crop to a fixed ratio, e.g. "16/9". Omit to keep the native ratio. */
+  ratio?: string;
+}
+
+const {
+  image,
+  sizes,
+  caption,
+  grade = false,
+  priority = false,
+  class: className = '',
+  ratio,
+} = Astro.props;
+
+/**
+ * Never ask the browser for more pixels than the source actually has — Astro
+ * will not upscale, so a larger `sizes` just picks the same file and reports a
+ * misleading intrinsic size to the layout.
+ */
+const resolvedSizes = sizes ?? `(min-width: 1024px) ${image.maxDisplayWidth}px, 100vw`;
+const widths = [320, 480, 640, 768, 996].filter((w) => w <= image.maxDisplayWidth);
+if (!widths.includes(image.maxDisplayWidth)) widths.push(image.maxDisplayWidth);
+---
+
+<figure class={className}>
+  <div
+    class="overflow-hidden rounded-card border border-brand-200/70 bg-brand-50
+           shadow-[0_1px_2px_rgba(14,58,92,0.04)]"
+    style={ratio ? `aspect-ratio:${ratio}` : undefined}
+  >
+    <Image
+      src={image.src}
+      alt={image.alt}
+      widths={widths}
+      sizes={resolvedSizes}
+      loading={priority ? 'eager' : 'lazy'}
+      fetchpriority={priority ? 'high' : 'auto'}
+      decoding={priority ? 'sync' : 'async'}
+      class:list={[
+        'h-full w-full object-cover',
+        grade && 'saturate-[0.92] contrast-[1.03] hue-rotate-[-4deg]',
+      ]}
+    />
+  </div>
+  {
+    caption && (
+      <figcaption class="mt-2.5 flex items-start gap-2 text-sm text-ink-600">
+        <span class="mt-1.5 h-px w-4 shrink-0 bg-door-400" aria-hidden="true" />
+        {caption}
+      </figcaption>
+    )
+  }
+</figure>

@@ -104,6 +104,33 @@
   --color-accent-800: #195a76;
 
   /*
+   * Door green — sampled from the facility's own roll-up doors.
+   *
+   * Not part of the original CLIMATE CLEAR five, added once the owner's photos
+   * arrived. The doors are the one piece of physical brand this business already
+   * owns, exactly as the red doors were at Cañon City, so the palette should
+   * acknowledge them rather than make every photo look off-brand.
+   *
+   * `door-600` #416152 is the measured mid-tone of the doors themselves (via a
+   * colour histogram of the source photo, not eyeballed) and is 6.87:1 on white,
+   * so it is safe for text. It reads as a cool, desaturated forest green and sits
+   * with the navy instead of fighting it.
+   *
+   * Use it for photo-adjacent UI — captions, image borders, the drive-up product
+   * — never for primary actions. Cyan stays the only CTA colour.
+   */
+  --color-door-50: #f2f6f4;
+  --color-door-100: #e0eae5;
+  --color-door-200: #c2d4cb;
+  --color-door-300: #97b3a6;
+  --color-door-400: #6d8d81; /* 3.67:1 — fills and large text only */
+  --color-door-500: #527565;
+  --color-door-600: #416152; /* the doors — 6.87:1, text-safe */
+  --color-door-700: #35503f;
+  --color-door-800: #2a3f34;
+  --color-door-900: #0f2320;
+
+  /*
    * Error red. Needed as its own token because this palette has no warm colour:
    * on the Cañon City site the brand itself was red, so form errors could reuse
    * `brand`. Here that would render "This field is required" in the same calm navy
