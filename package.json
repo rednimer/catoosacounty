@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
-    "@fontsource-variable/archivo": "^5.2.5",
+    "@fontsource-variable/outfit": "^5.2.7",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^7.2.0",
     "sharp": "^0.34.5",
