@@ -1,0 +1,470 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { SITE, CONTACT, ADDRESS, HOURS, EXTERNAL } from '../data/site';
+import { UNITS, formatPrice, PRICING_AVAILABLE } from '../data/units';
+
+const crumbs = [{ name: 'Check Availability', href: '/reserve' }];
+
+/*
+ * ── WHY THIS POSTS STRAIGHT TO WEB3FORMS ─────────────────────────────────────
+ * This originally went through our own /api/reserve function so that server-side
+ * validation, a honeypot, a timing trap and rate limiting could not be bypassed.
+ * That does not work: Web3Forms sits behind Cloudflare, which answers
+ * server-to-server POSTs from datacenter IPs with a "Just a moment..." bot
+ * challenge (HTTP 403). Their API only accepts browser traffic.
+ *
+ * So the form submits directly, which is Web3Forms' intended integration. The
+ * access key is rendered into the page — that is by design and why they call it
+ * public; it can only ever deliver to the one inbox it is bound to. Restrict it
+ * to this domain in the Web3Forms dashboard to stop it being reused elsewhere.
+ *
+ * Protections that survive the move: the hidden honeypot (Web3Forms' own
+ * `botcheck`), Web3Forms' server-side spam filtering, and the field validation
+ * below. Rate limiting is now theirs rather than ours.
+ *
+ * NOTE: statically generated, so Astro.url.searchParams is empty at build time —
+ * the ?size= deep links from /units are read client-side in the script below.
+ */
+const accessKey =
+  import.meta.env.WEB3FORMS_ACCESS_KEY ?? process.env.WEB3FORMS_ACCESS_KEY ?? '';
+
+if (!accessKey) {
+  console.warn(
+    '[reserve] WEB3FORMS_ACCESS_KEY is not set at build time — the form will ' +
+      'render but submissions will fail. Set it in the Vercel project and redeploy.',
+  );
+}
+
+/** Sends non-JavaScript submissions back to our own thank-you page. */
+const noJsRedirect = new URL('/reserve/thank-you', SITE.url).href;
+---
+
+<BaseLayout
+  title="Check Availability"
+  description="Request a storage unit in Rossville, GA. Tell us the size you need and when you want to move in, and we will confirm availability and pricing."
+  breadcrumbs={crumbs}
+>
+  <PageHeader
+    eyebrow="Check availability"
+    title="Tell us what you need"
+    lede="Send this and we will come back to you with what is open and what it costs. Asking costs nothing and does not commit you to anything."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
+      <!-- Form -->
+      <div>
+        <div
+          id="reserve-error"
+          role="alert"
+          hidden
+          class="mb-8 rounded-md border-l-4 border-danger-500 bg-danger-50 px-4 py-3 text-brand-900"
+        >
+        </div>
+
+        <form
+          id="reserve-form"
+          method="POST"
+          action="https://api.web3forms.com/submit"
+          novalidate
+          class="space-y-6"
+        >
+          <!--
+            Web3Forms plumbing. Field names are written the way the office
+            should read them, because Web3Forms forwards every field into the
+            notification email using its name as the label. `email` keeps its
+            lowercase name because that is the field Web3Forms uses for
+            Reply-To — replying to a notification goes back to the customer.
+          -->
+          <input type="hidden" name="access_key" value={accessKey} />
+          <input type="hidden" name="subject" value="New storage request — catoosacountystorage.com" />
+          <input type="hidden" name="from_name" value="Catoosa County Storage website" />
+          <input type="hidden" name="redirect" value={noJsRedirect} />
+
+          <!-- Web3Forms' own honeypot: hidden from people, checked by bots. -->
+          <input
+            type="checkbox"
+            name="botcheck"
+            class="hidden"
+            style="display:none"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label for="name" class="block text-sm font-bold text-ink-900">
+                Your name <span class="text-danger-600" aria-hidden="true">*</span>
+              </label>
+              <!--
+                aria-describedby + role="alert" on the message: moving focus to
+                the field is not enough on its own, because a screen reader
+                announces the field's label and value but not an adjacent
+                paragraph. Without this a blind user is dropped on the input
+                with no idea what is wrong (WCAG 3.3.1).
+              -->
+              <input
+                type="text"
+                id="name"
+                name="Name"
+                required
+                autocomplete="name"
+                aria-describedby="name-error"
+                class="mt-2 block w-full rounded-md border border-ink-300 px-4 py-3 text-base
+                       transition focus:border-accent-600 focus:outline-none focus:ring-2
+                       focus:ring-accent-500/30 aria-[invalid=true]:border-danger-500"
+              />
+              <p
+                id="name-error"
+                role="alert"
+                class="mt-1.5 hidden text-sm font-medium text-danger-600"
+                data-error-for="Name"
+              >
+              </p>
+            </div>
+
+            <div>
+              <label for="phone" class="block text-sm font-bold text-ink-900">
+                Phone
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="Phone"
+                autocomplete="tel"
+                inputmode="tel"
+                placeholder="(706) 555-0123"
+                aria-describedby="phone-error"
+                class="mt-2 block w-full rounded-md border border-ink-300 px-4 py-3 text-base
+                       transition focus:border-accent-600 focus:outline-none focus:ring-2
+                       focus:ring-accent-500/30 aria-[invalid=true]:border-danger-500"
+              />
+              <p
+                id="phone-error"
+                role="alert"
+                class="mt-1.5 hidden text-sm font-medium text-danger-600"
+                data-error-for="Phone"
+              >
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-bold text-ink-900">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autocomplete="email"
+              inputmode="email"
+              aria-describedby="email-hint email-error"
+              class="mt-2 block w-full rounded-md border border-ink-300 px-4 py-3 text-base
+                     transition focus:border-accent-600 focus:outline-none focus:ring-2
+                     focus:ring-accent-500/30 aria-[invalid=true]:border-danger-500"
+            />
+            <p id="email-hint" class="mt-1.5 text-sm text-ink-600">
+              A phone number or an email — whichever you prefer we use.
+            </p>
+            <p
+              id="email-error"
+              role="alert"
+              class="mt-1.5 hidden text-sm font-medium text-danger-600"
+              data-error-for="email"
+            >
+            </p>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label for="size" class="block text-sm font-bold text-ink-900">
+                Size you want
+              </label>
+              <select
+                id="size"
+                name="Unit size"
+                class="mt-2 block w-full rounded-md border border-ink-300 bg-white px-4 py-3
+                       text-base transition focus:border-brand-600 focus:outline-none
+                       focus:ring-2 focus:ring-brand-600/30"
+              >
+                <option value="Not sure yet — wants help choosing">
+                  Not sure yet — help me choose
+                </option>
+                {
+                  UNITS.map((unit) => (
+                    <option value={`${unit.name} — ${unit.comparableTo}`} data-slug={unit.slug}>
+                      {unit.name} — {unit.comparableTo}
+                      {PRICING_AVAILABLE && unit.priceFrom !== null
+                        ? ` (${formatPrice(unit.priceFrom)})`
+                        : ''}
+                    </option>
+                  ))
+                }
+              </select>
+              <p class="mt-1.5 text-sm text-ink-600">
+                Unsure? <a href="/storage-unit-size-guide" class="font-semibold text-brand-700 underline underline-offset-2">See the size guide</a>.
+              </p>
+            </div>
+
+            <div>
+              <label for="moveIn" class="block text-sm font-bold text-ink-900">
+                Move-in date
+              </label>
+              <input
+                type="date"
+                id="moveIn"
+                name="Move-in date"
+                class="mt-2 block w-full rounded-md border border-ink-300 px-4 py-3 text-base
+                       transition focus:border-accent-600 focus:outline-none focus:ring-2
+                       focus:ring-accent-500/30"
+              />
+              <p class="mt-1.5 text-sm text-ink-600">Approximate is fine.</p>
+            </div>
+          </div>
+
+          <div>
+            <label for="message" class="block text-sm font-bold text-ink-900">
+              Anything else?
+            </label>
+            <textarea
+              id="message"
+              name="Message"
+              rows="4"
+              placeholder="What you're storing, how long you need it, questions about access…"
+              class="mt-2 block w-full rounded-md border border-ink-300 px-4 py-3 text-base
+                     transition focus:border-accent-600 focus:outline-none focus:ring-2
+                     focus:ring-accent-500/30"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <button type="submit" class="btn-primary" data-submit>
+              <span data-submit-label>Send request</span>
+            </button>
+            <p class="text-sm text-ink-600">
+              Or call <a href={CONTACT.phoneHref} class="font-bold text-brand-700 hover:underline">{CONTACT.phoneDisplay}</a>
+            </p>
+          </div>
+
+          <p class="text-sm text-ink-600">
+            We use your details only to answer this request. Sending it costs
+            nothing and does not commit you to anything.
+          </p>
+        </form>
+
+        <!-- Success state, revealed by the script after a successful send. -->
+        <div id="reserve-success" hidden class="rounded-card border-2 border-brand-500 bg-brand-50 p-8 text-center">
+          <svg viewBox="0 0 24 24" fill="none" class="mx-auto h-12 w-12 text-brand-600" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+            <path d="m8 12 3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <h2 class="mt-4 text-2xl font-bold text-ink-900">Request sent</h2>
+          <p class="mt-2 text-ink-700">
+            We will get back to you with availability and current pricing. If you
+            need an answer sooner, call
+            <a href={CONTACT.phoneHref} class="font-bold text-brand-700 hover:underline">{CONTACT.phoneDisplay}</a>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="space-y-6 lg:sticky lg:top-28 lg:self-start">
+        <div class="rounded-card border border-ink-200 p-6">
+          <h2 class="font-bold text-ink-900">Rather just call?</h2>
+          <a
+            href={CONTACT.phoneHref}
+            class="mt-2 block text-2xl font-bold text-brand-700 hover:underline"
+          >
+            {CONTACT.phoneDisplay}
+          </a>
+          <!-- [GAP] Hours are unconfirmed — see HOURS in src/data/site.ts.
+               Renders from data when published, never hardcoded. -->
+          {
+            HOURS.published && HOURS.office ? (
+              <>
+                {HOURS.office.note && (
+                  <p class="mt-3 text-sm text-ink-600">{HOURS.office.note}</p>
+                )}
+                <dl class="mt-3 space-y-1 text-sm">
+                  {HOURS.office.days.map((d) => (
+                    <div class="flex justify-between gap-3">
+                      <dt class="text-ink-600">{d.day}</dt>
+                      <dd class="font-medium text-brand-800">{d.hours}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </>
+            ) : (
+              <p class="mt-3 text-sm text-ink-600">{HOURS.fallbackNote}.</p>
+            )
+          }
+        </div>
+
+        <div class="rounded-card border border-ink-200 p-6">
+          <h2 class="font-bold text-ink-900">Where we are</h2>
+          <address class="mt-2 not-italic leading-relaxed text-ink-700">
+            {ADDRESS.street}<br />
+            {ADDRESS.city}, {ADDRESS.state} {ADDRESS.zip}
+          </address>
+          <p class="mt-2 text-sm text-ink-600">{ADDRESS.accessNote}</p>
+          <a href="/location" class="mt-3 inline-block font-semibold text-brand-700 underline underline-offset-2">
+            Directions &amp; map
+          </a>
+        </div>
+
+        <div class="rounded-card border border-ink-200 bg-ink-50 p-6">
+          <h2 class="font-bold text-ink-900">Already renting with us?</h2>
+          <p class="mt-1 text-sm text-ink-600">
+            Payments for existing customers are handled through U-Haul.
+          </p>
+          <a href={EXTERNAL.uhaulPayments} rel="noopener" class="btn-secondary mt-4 w-full !py-2.5 !text-sm">
+            Make a payment
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('reserve-form') as HTMLFormElement | null;
+  const success = document.getElementById('reserve-success');
+
+  if (form && success) {
+    const params = new URLSearchParams(window.location.search);
+
+    // Preselect the size from a /units deep link (?size=10x20). The option
+    // values are human-readable for the email, so match on the data-slug.
+    const requestedSize = params.get('size');
+    if (requestedSize) {
+      const select = form.querySelector<HTMLSelectElement>('#size');
+      const match = select
+        ? [...select.options].find((o) => o.dataset.slug === requestedSize)
+        : null;
+      if (select && match) select.value = match.value;
+    }
+
+    const showError = (field: string, message: string) => {
+      const input = form.querySelector<HTMLElement>(`[name="${field}"]`);
+      const slot = form.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
+      if (input) input.setAttribute('aria-invalid', 'true');
+      if (slot) {
+        // Reveal BEFORE writing the text. role="alert" only announces content
+        // that changes while the node is already in the accessibility tree —
+        // filling a display:none element and then showing it announces nothing.
+        slot.classList.remove('hidden');
+        slot.textContent = message;
+      }
+    };
+
+    const clearErrors = () => {
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((el) => {
+        el.textContent = '';
+        el.classList.add('hidden');
+      });
+      const banner = document.getElementById('reserve-error');
+      if (banner) banner.hidden = true;
+    };
+
+    /**
+     * Same rules the server used to enforce. Client-side only now, because
+     * Web3Forms cannot be called from a backend (Cloudflare blocks it), so
+     * treat this as guidance for real people rather than a barrier to bots —
+     * that job belongs to the honeypot and Web3Forms' own filtering.
+     */
+    const validate = () => {
+      const value = (sel: string) =>
+        (form.querySelector<HTMLInputElement>(sel)?.value ?? '').trim();
+
+      const errors: Array<[string, string]> = [];
+      const name = value('#name');
+      const phone = value('#phone');
+      const email = value('#email');
+
+      if (name.length < 2) errors.push(['Name', 'Please enter your name.']);
+
+      const phoneDigits = phone.replace(/\D/g, '');
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+      const phoneValid = phone.length > 0 && phoneDigits.length >= 10;
+      const emailValid = email.length > 0 && emailOk;
+
+      // Report against the field the visitor actually filled in.
+      if (phone.length > 0 && !phoneValid) {
+        errors.push(['Phone', 'That phone number looks incomplete.']);
+      }
+      if (email.length > 0 && !emailValid) {
+        errors.push(['email', 'That email address looks incorrect.']);
+      }
+      if (!phoneValid && !emailValid && !errors.some(([f]) => f === 'Phone' || f === 'email')) {
+        errors.push(['Phone', 'Give us a phone number or an email so we can reply.']);
+      }
+
+      return errors;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearErrors();
+
+      const errors = validate();
+      if (errors.length) {
+        errors.forEach(([field, message]) => showError(field, message));
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        return;
+      }
+
+      const button = form.querySelector<HTMLButtonElement>('[data-submit]');
+      const label = form.querySelector<HTMLElement>('[data-submit-label]');
+      const originalLabel = label?.textContent ?? 'Send request';
+      if (button) button.disabled = true;
+      if (label) label.textContent = 'Sending…';
+
+      try {
+        // JSON, not FormData: multipart is not what Web3Forms' JSON endpoint
+        // expects, and an earlier version of this form silently failed for
+        // every visitor because of exactly that mismatch.
+        const payload = Object.fromEntries(new FormData(form));
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (response.ok && result.success) {
+          form.hidden = true;
+          success.hidden = false;
+          success.setAttribute('tabindex', '-1');
+          (success as HTMLElement).focus();
+          success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        const banner = document.getElementById('reserve-error');
+        if (banner) {
+          banner.textContent =
+            'That did not send. Please call (706) 858-6498 and we will take your details.';
+          banner.hidden = false;
+          banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        console.error('[reserve] Web3Forms rejected the submission:', result);
+      } catch (err) {
+        // Offline or blocked — fall back to a native POST so the lead survives.
+        console.error('[reserve] Network failure, falling back to a native submit:', err);
+        form.submit();
+        return;
+      } finally {
+        if (button) button.disabled = false;
+        if (label) label.textContent = originalLabel;
+      }
+    });
+  }
+</script>

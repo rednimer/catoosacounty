@@ -1,0 +1,136 @@
+---
+/**
+ * FAQ.
+ *
+ * Grouped, with FAQPage schema emitted from the same array that renders the page.
+ *
+ * Note what is NOT answered here: gate hours, access codes, security, minimum term,
+ * deposits, insurance, locks and whether vehicles can be stored. Those are the most
+ * commonly asked storage questions and we cannot answer any of them yet — see the
+ * [GAP] list in _source/CONTENT-SOURCE.md §5 and §7. Inventing answers is exactly
+ * what the previous build did. Once the owner confirms them this page roughly
+ * doubles, and it is the highest-value content work left.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+import { CONTACT, ADDRESS, EXTERNAL } from '../data/site';
+
+const crumbs = [{ name: 'FAQ', href: '/faq' }];
+
+const GROUPS = [
+  {
+    heading: 'Getting a unit',
+    faqs: [
+      {
+        question: 'How do I rent a unit?',
+        answer: `Tell us what you need through the availability form on this site, or call ${CONTACT.phoneDisplay}. We will confirm what is open in the size and type you want, quote the current rate, and take it from there.`,
+      },
+      {
+        question: 'How much does it cost?',
+        answer: `Rates depend on the size and on whether you want climate control. We quote the current price when you call rather than publishing one that could be out of date — ${CONTACT.phoneDisplay}.`,
+      },
+      {
+        question: 'What size do I need?',
+        answer:
+          'Roughly: a 5x10 takes a studio, a 10x10 a one or two-bedroom, a 10x15 a two or three-bedroom, and a 10x20 a three or four-bedroom house. The size guide breaks each one down by what actually fits. If you are between two, call us — going one size too small and moving twice is the expensive mistake.',
+      },
+      {
+        question: 'Can I see a unit before I commit?',
+        answer: `Call ${CONTACT.phoneDisplay} and we will arrange for you to look at one.`,
+      },
+    ],
+  },
+  {
+    heading: 'Climate control vs drive-up',
+    faqs: [
+      {
+        question: 'What is the difference?',
+        answer:
+          'Climate-controlled units are temperature and humidity controlled, which protects anything that reacts to damp and heat — wood, upholstery, electronics, paper, photographs. Drive-up units let you pull a vehicle straight to the door, which makes loading much faster and costs less. We have both on the same property.',
+      },
+      {
+        question: 'Which one do I need?',
+        answer:
+          'If it is furniture, electronics, documents, instruments or anything irreplaceable, and it is staying through a summer, choose climate control. If it is tools, yard equipment, patio furniture or boxed overflow, a drive-up unit is the sensible choice.',
+      },
+      {
+        question: 'Is humidity really the problem, or is it the heat?',
+        answer:
+          'Humidity, mostly. North Georgia summers are long and wet, and it is the moisture that causes mildew on fabric, swelling and joint failure in wood, and corrosion inside electronics. Temperature matters, but damp is what actually ruins things.',
+      },
+    ],
+  },
+  {
+    heading: 'Finding us and paying',
+    faqs: [
+      {
+        question: 'Where are you?',
+        answer: `${ADDRESS.formatted}. ${ADDRESS.accessNote}`,
+      },
+      {
+        question: 'Do you serve Fort Oglethorpe, East Ridge and Chattanooga?',
+        answer:
+          'Yes. We are just off Cloud Springs Road (GA-146) in Rossville, which puts us a short drive from Fort Oglethorpe, and the Tennessee state line is about a mile north — so East Ridge and south Chattanooga are close as well.',
+      },
+      {
+        question: 'I already rent here. How do I pay?',
+        answer:
+          'Payments are handled through U-Haul. There is a link in the footer of every page, or you can call the office during business hours.',
+      },
+    ],
+  },
+];
+
+/** Flattened for the FAQPage schema, so markup and structured data cannot drift. */
+const allFaqs = GROUPS.flatMap((g) => g.faqs);
+---
+
+<BaseLayout
+  title="Storage FAQ — Catoosa County Storage, Rossville GA"
+  description="Common questions about climate-controlled and drive-up storage in Rossville, GA: sizes, pricing, the difference between unit types, and how to find us."
+  breadcrumbs={crumbs}
+  faqs={allFaqs}
+>
+  <PageHeader
+    eyebrow="FAQ"
+    title="Questions we get asked"
+    lede="If your question is not here, calling is genuinely the fastest way to get an answer."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <div class="max-w-3xl space-y-14">
+      {
+        GROUPS.map((group) => (
+          <div>
+            <h2 class="text-headline font-semibold">{group.heading}</h2>
+            <div class="mt-6">
+              <FaqAccordion faqs={group.faqs} />
+            </div>
+          </div>
+        ))
+      }
+
+      <div class="rounded-card border border-brand-200/70 bg-brand-50 p-6 sm:p-8">
+        <h2 class="text-xl font-semibold">Something we have not covered?</h2>
+        <p class="mt-2 leading-relaxed text-ink-600">
+          Access hours, terms, insurance and what you need to bring on move-in day
+          are all easier to answer properly on the phone than in a paragraph that
+          might not match your situation.
+        </p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <a href={CONTACT.phoneHref} class="btn-primary !py-2.5 !text-sm">
+            Call {CONTACT.phoneDisplay}
+          </a>
+          <a href={EXTERNAL.uhaulPayments} rel="noopener" class="btn-secondary !py-2.5 !text-sm">
+            Existing customer? Pay online
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>

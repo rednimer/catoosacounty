@@ -1,0 +1,154 @@
+---
+/**
+ * schema.org structured data.
+ *
+ * Emits a SelfStorage LocalBusiness on every page (Google reads it sitewide) and
+ * optionally a BreadcrumbList / FAQPage. All values come from the data layer so
+ * the NAP in the markup can never drift from the NAP on the page.
+ */
+import { SITE, CONTACT, ADDRESS, HOURS } from '../data/site';
+import { UNITS, PRICING_AVAILABLE } from '../data/units';
+
+interface Breadcrumb {
+  name: string;
+  href: string;
+}
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  breadcrumbs?: Breadcrumb[];
+  faqs?: FaqItem[];
+}
+
+const { breadcrumbs = [], faqs = [] } = Astro.props;
+
+const businessId = `${SITE.url}/#business`;
+
+/**
+ * "7:00 am – 9:00 pm" → { opens: '07:00', closes: '21:00' }.
+ *
+ * Returns {} for anything it cannot parse (e.g. "Closed", "By appointment") so an
+ * unparseable string degrades to an entry with no times rather than a wrong one.
+ * Currently unreached — HOURS.published is false — but it must stay correct for
+ * the moment the owner supplies real hours.
+ */
+function parseHours(range: string): { opens?: string; closes?: string } {
+  const match = range.match(
+    /(\d{1,2}):(\d{2})\s*(am|pm)\s*[–—-]\s*(\d{1,2}):(\d{2})\s*(am|pm)/i,
+  );
+  if (!match) return {};
+
+  const to24 = (h: string, m: string, meridiem: string): string => {
+    let hour = Number(h) % 12;
+    if (meridiem.toLowerCase() === 'pm') hour += 12;
+    return `${String(hour).padStart(2, '0')}:${m}`;
+  };
+
+  return {
+    opens: to24(match[1], match[2], match[3]),
+    closes: to24(match[4], match[5], match[6]),
+  };
+}
+
+/**
+ * Every optional field below is omitted rather than guessed.
+ *
+ * The May 2026 build emitted invented geo coordinates and invented opening hours
+ * into this exact block. Wrong structured data is worse than absent structured
+ * data: Google trusts it, surfaces it in the knowledge panel, and sends people to
+ * a closed gate. Omitting a property costs nothing by comparison.
+ */
+const business = {
+  '@type': 'SelfStorage',
+  '@id': businessId,
+  name: SITE.name,
+  // Reconciles the longer name used by Yelp / YellowPages / CMac to this entity.
+  alternateName: SITE.alternateName,
+  description: SITE.description,
+  url: SITE.url,
+  telephone: CONTACT.phoneDisplay,
+  // Ternary rather than `&&`: these fields are literal-typed null/false in the
+  // data layer, and `false && {...}` is `false`, which is not spreadable.
+  ...(CONTACT.email ? { email: CONTACT.email } : {}),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: ADDRESS.street,
+    addressLocality: ADDRESS.city,
+    addressRegion: ADDRESS.state,
+    postalCode: ADDRESS.zip,
+    addressCountry: ADDRESS.country,
+  },
+  // [GAP] Coordinates are unverified — see site.ts. Omitted until confirmed.
+  ...(ADDRESS.geo && {
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: ADDRESS.geo.lat,
+      longitude: ADDRESS.geo.lng,
+    },
+  }),
+  // [GAP] Hours are unpublished and unconfirmed. Omitted until the owner supplies
+  // them — an invented opening time is the single most damaging thing to get wrong.
+  ...(HOURS.published && HOURS.gate
+    ? {
+        openingHoursSpecification: HOURS.gate.days.map((d) => ({
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: d.day,
+          ...parseHours(d.hours),
+        })),
+      }
+    : {}),
+  // Only advertise an offer catalogue once real rates exist — never emit a
+  // price of 0 or a placeholder, which would be a structured-data violation.
+  ...(PRICING_AVAILABLE && {
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Storage units',
+      itemListElement: UNITS.filter((u) => u.priceFrom !== null).map((u) => ({
+        '@type': 'Offer',
+        name: `${u.name} storage unit`,
+        description: u.fits,
+        price: u.priceFrom,
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      })),
+    },
+  }),
+};
+
+const graph: Record<string, unknown>[] = [business];
+
+if (breadcrumbs.length) {
+  graph.push({
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbs.map((crumb, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: crumb.name,
+      item: new URL(crumb.href, SITE.url).href,
+    })),
+  });
+}
+
+if (faqs.length) {
+  graph.push({
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
+    })),
+  });
+}
+
+const jsonLd = { '@context': 'https://schema.org', '@graph': graph };
+---
+
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={JSON.stringify(jsonLd)}
+/>

@@ -1,0 +1,163 @@
+---
+/**
+ * Site footer. Repeats the full NAP block — footer NAP is a local-SEO signal and
+ * is where people look for the address and hours.
+ *
+ * The U-Haul payment link lives HERE and nowhere prominent: it is for existing
+ * customers only. New prospects must reach our own reserve form first.
+ *
+ * Note: the Cañon City version of this component hardcoded its hours strings in
+ * the markup even though the same values existed in the data layer. That is the
+ * exact drift the "single source of truth" rule exists to prevent, so here the
+ * hours render from HOURS or not at all.
+ */
+import { SITE, CONTACT, ADDRESS, HOURS, NAV, EXTERNAL, SERVICE_AREA } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t-4 border-accent-500 bg-brand-900 text-ink-200">
+  <div class="container-page py-14">
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <!-- NAP -->
+      <div>
+        <h2 class="text-base font-bold text-white">{SITE.name}</h2>
+        <address class="mt-4 not-italic leading-relaxed">
+          {ADDRESS.street}<br />
+          {ADDRESS.city}, {ADDRESS.state} {ADDRESS.zip}
+        </address>
+        <p class="mt-3 text-sm text-ink-300">{ADDRESS.accessNote}</p>
+        <div class="mt-3">
+          <a
+            href={CONTACT.phoneHref}
+            class="flex min-h-11 items-center text-lg font-bold text-white
+                   transition hover:text-accent-300"
+          >
+            {CONTACT.phoneDisplay}
+          </a>
+          {
+            CONTACT.emailHref && CONTACT.email && (
+              <a
+                href={CONTACT.emailHref}
+                class="flex min-h-11 items-center break-all text-sm transition hover:text-white"
+              >
+                {CONTACT.email}
+              </a>
+            )
+          }
+        </div>
+      </div>
+
+      <!--
+        Hours. [GAP] Not published by the business and not guessed here — see
+        HOURS in src/data/site.ts. When the owner confirms them, set
+        HOURS.published = true and this block fills itself in.
+      -->
+      <div>
+        <h2 class="text-base font-bold text-white">Hours</h2>
+        {
+          HOURS.published && HOURS.gate ? (
+            <>
+              <h3 class="mt-4 text-sm font-bold text-white">{HOURS.gate.label}</h3>
+              {HOURS.gate.note && (
+                /* brand-300, not brand-400: on ink-900 that is 7.2:1 vs 3.8:1. */
+                <p class="mt-0.5 text-sm text-accent-300">{HOURS.gate.note}</p>
+              )}
+              <dl class="mt-2 space-y-1 text-sm">
+                {HOURS.gate.days.map((d) => (
+                  <div class="flex justify-between gap-3">
+                    <dt>{d.day}</dt>
+                    <dd class="text-ink-300">{d.hours}</dd>
+                  </div>
+                ))}
+              </dl>
+            </>
+          ) : (
+            <p class="mt-4 text-sm leading-relaxed text-ink-300">
+              {HOURS.fallbackNote}.
+            </p>
+          )
+        }
+        {
+          HOURS.published && HOURS.office && (
+            <>
+              <h3 class="mt-6 text-sm font-bold text-white">{HOURS.office.label}</h3>
+              {HOURS.office.note && (
+                <p class="text-sm text-ink-300">{HOURS.office.note}</p>
+              )}
+              <dl class="mt-2 space-y-1 text-sm">
+                {HOURS.office.days.map((d) => (
+                  <div class="flex justify-between gap-3">
+                    <dt>{d.day}</dt>
+                    <dd class="text-ink-300">{d.hours}</dd>
+                  </div>
+                ))}
+              </dl>
+            </>
+          )
+        }
+        <a
+          href={CONTACT.phoneHref}
+          class="mt-3 inline-flex min-h-11 items-center font-bold text-white
+                 underline decoration-accent-500 decoration-2 underline-offset-4
+                 transition hover:text-accent-300"
+        >
+          {CONTACT.phoneDisplay}
+        </a>
+      </div>
+
+      <!-- Nav -->
+      <div>
+        <h2 class="text-base font-bold text-white">Storage</h2>
+        <!-- Links are min-h-11 (44px) so they are comfortable touch targets. -->
+        <ul class="mt-2 text-sm">
+          {
+            [...NAV,
+             { label: 'Check availability', href: '/reserve' },
+             { label: 'Contact', href: '/contact' },
+            ].map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="flex min-h-11 items-center transition hover:text-white"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Existing customers + service area -->
+      <div>
+        <h2 class="text-base font-bold text-white">Already renting?</h2>
+        <a
+          href={EXTERNAL.uhaulPayments}
+          class="btn-on-dark mt-4 !w-full !px-4 !py-2.5 !text-sm"
+          rel="noopener"
+        >
+          Make a payment
+        </a>
+        <p class="mt-2 text-xs text-ink-300">
+          Payments are handled through U-Haul.
+        </p>
+
+        <h3 class="mt-8 text-sm font-bold text-white">Serving</h3>
+        <p class="mt-2 text-sm leading-relaxed text-ink-300">
+          {SERVICE_AREA.join(' · ')}
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="mt-12 flex flex-col gap-3 border-t border-brand-800 pt-6 text-sm
+             text-ink-300 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>&copy; {year} {SITE.name}. All rights reserved.</p>
+      <!-- Deliberately just the location: "locally owned" is an unverified claim
+           for this business (see CONTENT-SOURCE.md §7). -->
+      <p>{ADDRESS.formatted}</p>
+    </div>
+  </div>
+</footer>

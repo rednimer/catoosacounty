@@ -1,0 +1,159 @@
+---
+/**
+ * Units & pricing.
+ *
+ * A real <table> on desktop, cards on mobile — the same pattern that worked on the
+ * Cañon City build. A table is the correct semantics for this data and it is what
+ * screen readers and search engines both want; the card view is the same data
+ * re-laid-out, not a second source.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import ProvisionalNote from '../components/ProvisionalNote.astro';
+import { CONTACT } from '../data/site';
+import {
+  UNITS,
+  UNIT_TYPE_LABEL,
+  formatPrice,
+  PRICING_AVAILABLE,
+  CATALOGUE_PROVISIONAL,
+} from '../data/units';
+
+const crumbs = [{ name: 'Units & Pricing', href: '/units' }];
+---
+
+<BaseLayout
+  title="Unit Sizes & Pricing"
+  description="Climate-controlled and drive-up storage unit sizes in Rossville, GA. Call (706) 858-6498 for current rates and what is open today."
+  breadcrumbs={crumbs}
+>
+  <PageHeader
+    eyebrow="Units & pricing"
+    title="Sizes and what fits in them"
+    lede="Every size below comes down to one question: how much of your house are you moving? Each row is matched to a room you already know."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <ProvisionalNote when={CATALOGUE_PROVISIONAL}>
+      These are typical self-storage sizes. We have not yet confirmed which of them
+      this facility stocks, or in which type.
+    </ProvisionalNote>
+
+    {
+      !PRICING_AVAILABLE && (
+        <p class="mt-6 max-w-2xl leading-relaxed text-ink-600">
+          Rates change with size, unit type and what is open, so rather than post a
+          number that might be out of date we would rather quote you the real one.
+          <a
+            href={CONTACT.phoneHref}
+            class="ml-1 font-semibold text-brand-700 underline underline-offset-2"
+          >
+            Call {CONTACT.phoneDisplay}
+          </a>{' '}
+          or{' '}
+          <a
+            href="/reserve"
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            send us what you need
+          </a>{' '}
+          and we will come back with today's price.
+        </p>
+      )
+    }
+
+    <!-- Desktop: real table. -->
+    <div class="mt-10 hidden overflow-x-auto md:block">
+      <table class="w-full border-collapse text-left">
+        <caption class="sr-only">
+          Storage unit sizes, what fits in each, available types and pricing
+        </caption>
+        <thead>
+          <tr class="border-b-2 border-brand-800">
+            <th scope="col" class="py-3 pr-4 text-sm font-semibold text-brand-800">Size</th>
+            <th scope="col" class="py-3 pr-4 text-sm font-semibold text-brand-800">Area</th>
+            <th scope="col" class="py-3 pr-4 text-sm font-semibold text-brand-800">About the size of</th>
+            <th scope="col" class="py-3 pr-4 text-sm font-semibold text-brand-800">What fits</th>
+            <th scope="col" class="py-3 pr-4 text-sm font-semibold text-brand-800">Type</th>
+            <th scope="col" class="py-3 text-sm font-semibold text-brand-800">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            UNITS.map((u) => (
+              <tr id={u.slug} class="border-b border-brand-200/70 align-top scroll-mt-28">
+                <th scope="row" class="py-5 pr-4 text-lg font-semibold text-brand-800">
+                  {u.name}
+                </th>
+                <td class="py-5 pr-4 text-sm text-ink-600">{u.sqft} sq ft</td>
+                <td class="py-5 pr-4 text-sm font-medium text-accent-700">{u.comparableTo}</td>
+                <td class="max-w-sm py-5 pr-4 text-sm leading-relaxed text-ink-600">{u.fits}</td>
+                <td class="py-5 pr-4 text-sm text-ink-600">
+                  {u.availableIn.map((t) => UNIT_TYPE_LABEL[t]).join(', ')}
+                </td>
+                <td class="whitespace-nowrap py-5 text-sm font-semibold text-brand-800">
+                  {formatPrice(u.priceFrom)}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile: same data as cards. -->
+    <ul class="mt-10 grid gap-4 md:hidden">
+      {
+        UNITS.map((u) => (
+          <li id={`${u.slug}-m`} class="card scroll-mt-28">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-2xl font-semibold text-brand-800">{u.name}</h2>
+              <span class="text-sm text-ink-600">{u.sqft} sq ft</span>
+            </div>
+            <p class="mt-1 font-medium text-accent-700">{u.comparableTo}</p>
+            <p class="mt-3 text-sm leading-relaxed text-ink-600">{u.fits}</p>
+            <ul class="mt-4 flex flex-wrap gap-2">
+              {u.goodFor.map((g) => (
+                <li class="rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-800">
+                  {g}
+                </li>
+              ))}
+            </ul>
+            <div class="mt-4 flex items-center justify-between gap-3 border-t border-brand-200/70 pt-4">
+              <span class="text-sm font-semibold text-brand-800">
+                {formatPrice(u.priceFrom)}
+              </span>
+              <a
+                href={`/reserve?size=${u.slug}`}
+                class="text-sm font-semibold text-accent-700 underline underline-offset-4"
+              >
+                Ask about this size
+              </a>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-12 rounded-card bg-brand-50 p-6 sm:p-8">
+      <h2 class="text-xl font-semibold">Not sure which one?</h2>
+      <p class="mt-2 max-w-2xl leading-relaxed text-ink-600">
+        The most common mistake is renting one size too small and then paying to move
+        twice. Our size guide walks through each unit with what actually fits, and if
+        you are between two sizes we will talk it through on the phone.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href="/storage-unit-size-guide" class="btn-secondary !py-2.5 !text-sm">
+          Read the size guide
+        </a>
+        <a href={CONTACT.phoneHref} class="btn-primary !py-2.5 !text-sm">
+          Call {CONTACT.phoneDisplay}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>

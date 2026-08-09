@@ -1,0 +1,44 @@
+---
+/**
+ * Closing call-to-action band. Every page ends with one so there is always a
+ * next step in view without the visitor having to scroll back up.
+ */
+import { CONTACT } from '../data/site';
+
+interface Props {
+  heading?: string;
+  body?: string;
+  /** Muted variant, for pages that already end on a dark section. */
+  tone?: 'dark' | 'light';
+}
+
+const {
+  heading = 'Ready to reserve a unit?',
+  body = 'Tell us the size you need and when you want to move in. We will confirm availability and current pricing.',
+  tone = 'dark',
+} = Astro.props;
+
+const isDark = tone === 'dark';
+---
+
+<section class:list={[isDark ? 'bg-brand-900' : 'bg-brand-50', 'py-16 sm:py-20']}>
+  <div class="container-page text-center">
+    <h2 class:list={['text-headline font-bold', isDark && 'text-white']}>
+      {heading}
+    </h2>
+    <p
+      class:list={[
+        'mx-auto mt-4 max-w-xl text-lg',
+        isDark ? 'text-brand-100' : 'text-ink-600',
+      ]}
+    >
+      {body}
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="/reserve" class="btn-primary">Check availability</a>
+      <a href={CONTACT.phoneHref} class={isDark ? 'btn-on-dark' : 'btn-secondary'}>
+        Call {CONTACT.phoneDisplay}
+      </a>
+    </div>
+  </div>
+</section>

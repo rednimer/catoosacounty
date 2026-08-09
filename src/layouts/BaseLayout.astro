@@ -1,0 +1,158 @@
+---
+/**
+ * Base layout: document head, SEO, header/footer chrome and the sticky mobile
+ * call bar. Every page renders through this.
+ */
+// The @font-face lives in global.css and points at the Latin-only subset.
+// (Importing the fontsource CSS instead would ship Cyrillic, Greek, Vietnamese
+// and Latin-Ext too — ~145 kB of woff2 this site never uses.)
+import '../styles/global.css';
+
+// Imported for its hashed build URL so the font can be preloaded. Without this
+// the browser cannot discover the font until it has parsed the CSS: measured on
+// mobile, the stylesheet finished at 217 ms but the font did not start until
+// 285 ms and landed at 344 ms, so text sat in the fallback face and then
+// reflowed — which was the site's entire CLS (0.087).
+import outfitLatinWoff2 from '@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2?url';
+
+import { SITE, ADDRESS } from '../data/site';
+import Schema from '../components/Schema.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileCallBar from '../components/MobileCallBar.astro';
+
+interface Breadcrumb {
+  name: string;
+  href: string;
+}
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  /** Defaults to the current path. Pass explicitly only to override. */
+  canonical?: string;
+  /** Absolute or root-relative path to the social share image. */
+  ogImage?: string;
+  breadcrumbs?: Breadcrumb[];
+  faqs?: FaqItem[];
+  /** Set on pages that should not be indexed (e.g. form thank-you). */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogImage = '/og-default.jpg',
+  breadcrumbs = [],
+  faqs = [],
+  noindex = false,
+} = Astro.props;
+
+// Titles are written per-page; only append the brand when it is absent.
+const fullTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
+
+/**
+ * Normalise a path for canonical and og:url.
+ *
+ * `build.format: 'file'` emits `/units.html`, so Astro.url.pathname carries the
+ * extension at build time — but Vercel serves the page at `/units` (cleanUrls)
+ * and the sitemap lists `/units`. Emitting `/units.html` as the canonical would
+ * point search engines at a different URL than the one they actually crawl.
+ */
+function canonicalPath(pathname: string): string {
+  let path = pathname.replace(/\.html$/, '');
+  if (path === '/index' || path === '') return '/';
+  if (path.endsWith('/index')) path = path.slice(0, -'/index'.length);
+  // Strip any trailing slash to match trailingSlash: 'never'.
+  if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
+  return path || '/';
+}
+
+const canonicalUrl = new URL(
+  canonical ?? canonicalPath(Astro.url.pathname),
+  SITE.url,
+).href;
+const ogImageUrl = new URL(ogImage, SITE.url).href;
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <!-- Starts the font in parallel with the stylesheet instead of after it.
+         crossorigin is required on font preloads even for same-origin files;
+         without it the browser fetches the file twice. -->
+    <link
+      rel="preload"
+      href={outfitLatinWoff2}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Local business geo signals. Coordinates are omitted until verified
+         against the parcel — see ADDRESS.geo in src/data/site.ts. -->
+    <meta name="geo.region" content={`US-${ADDRESS.state}`} />
+    <meta name="geo.placename" content={ADDRESS.city} />
+    {
+      ADDRESS.geo && (
+        <>
+          <meta
+            name="geo.position"
+            content={`${ADDRESS.geo.lat};${ADDRESS.geo.lng}`}
+          />
+          <meta name="ICBM" content={`${ADDRESS.geo.lat}, ${ADDRESS.geo.lng}`} />
+        </>
+      )
+    }
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Matches --color-brand-800; keep in sync with global.css. -->
+    <meta name="theme-color" content="#0e3a5c" />
+
+    <Schema breadcrumbs={breadcrumbs} faqs={faqs} />
+  </head>
+
+  <body>
+    <a href="#main" class="sr-only-focusable">Skip to main content</a>
+
+    <Header />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer />
+    <MobileCallBar />
+  </body>
+</html>

@@ -1,0 +1,141 @@
+---
+/**
+ * Location & directions.
+ *
+ * Landmark directions beat turn-by-turn — that was the clearest content lesson from
+ * the Cañon City build, and this facility has an unusually good landmark already
+ * written by the owner: "on the right, after the second house".
+ *
+ * The per-town directions are geometry, not claims: they describe public roads.
+ * What is deliberately absent is any drive-time figure ("5 minutes from downtown
+ * Fort Oglethorpe") — the May build invented several and we have not measured any.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { CONTACT, ADDRESS, HOURS, SERVICE_AREA } from '../data/site';
+
+const crumbs = [{ name: 'Location', href: '/location' }];
+
+/** Google Maps deep link built from the address string, so it cannot drift. */
+const mapsQuery = encodeURIComponent(
+  `${ADDRESS.street}, ${ADDRESS.city}, ${ADDRESS.state} ${ADDRESS.zip}`,
+);
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+
+const ROUTES = [
+  {
+    from: 'From Rossville',
+    body: 'Head out to Cloud Springs Road (GA-146) and turn onto Mack Smith Road heading north. We are a tenth of a mile up on the right — look for the office just past the second house.',
+  },
+  {
+    from: 'From Fort Oglethorpe',
+    body: 'Take Battlefield Parkway across to Cloud Springs Road, follow it to Mack Smith Road and turn north. The office is on the right shortly after you turn in.',
+  },
+  {
+    from: 'From East Ridge & Chattanooga',
+    body: 'Come south across the state line on Ringgold Road into Rossville, then pick up Cloud Springs Road and turn north onto Mack Smith Road. We are on the right.',
+  },
+  {
+    from: 'From I-75',
+    body: 'Leave I-75 at Exit 350 for Battlefield Parkway and head west through Fort Oglethorpe. Stay on Battlefield to Cloud Springs Road, then north on Mack Smith Road.',
+  },
+];
+---
+
+<BaseLayout
+  title="Directions to Catoosa County Storage, Rossville GA"
+  description="Find us at 132 Mack Smith Road, Rossville GA 30741 — off Cloud Springs Road (GA-146), minutes from Fort Oglethorpe and the Tennessee line. Call (706) 858-6498."
+  breadcrumbs={crumbs}
+>
+  <PageHeader
+    eyebrow="Location"
+    title="132 Mack Smith Road"
+    lede="Off Cloud Springs Road, just inside Rossville and a short run from Fort Oglethorpe, East Ridge and the state line."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-16">
+      <div>
+        <!-- The owner's own landmark. It is the single most useful sentence
+             on the old site, so it gets top billing rather than being buried. -->
+        <div class="rounded-card border-l-4 border-accent-500 bg-brand-50 p-6 sm:p-8">
+          <h2 class="text-xl font-semibold">The turn is easy to miss</h2>
+          <p class="mt-3 text-lg leading-relaxed text-ink-600">{ADDRESS.accessNote}</p>
+        </div>
+
+        <h2 class="mt-14 text-headline font-semibold">Getting here</h2>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+          {
+            ROUTES.map((r) => (
+              <div class="card">
+                <h3 class="font-semibold text-brand-800">{r.from}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-ink-600">{r.body}</p>
+              </div>
+            ))
+          }
+        </div>
+
+        <h2 class="mt-14 text-headline font-semibold">Who we serve</h2>
+        <p class="mt-3 max-w-2xl leading-relaxed text-ink-600">
+          Mack Smith Road sits close to the Georgia–Tennessee line, so the catchment
+          runs across it. Storing on the Georgia side is routine for people in East
+          Ridge and south Chattanooga.
+        </p>
+        <ul class="mt-6 flex flex-wrap gap-2">
+          {
+            SERVICE_AREA.map((area) => (
+              <li class="rounded-full bg-brand-100 px-4 py-1.5 text-sm font-medium text-brand-800">
+                {area}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <aside class="space-y-6 lg:sticky lg:top-28 lg:self-start">
+        <div class="card">
+          <h2 class="font-semibold text-brand-800">Address</h2>
+          <address class="mt-2 not-italic text-lg leading-relaxed text-ink-600">
+            {ADDRESS.street}<br />
+            {ADDRESS.city}, {ADDRESS.state} {ADDRESS.zip}
+          </address>
+          <a
+            href={mapsUrl}
+            rel="noopener"
+            class="btn-secondary mt-4 !w-full !py-2.5 !text-sm"
+          >
+            Open in Google Maps
+          </a>
+        </div>
+
+        <div class="card">
+          <h2 class="font-semibold text-brand-800">Call the office</h2>
+          <a
+            href={CONTACT.phoneHref}
+            class="mt-2 block text-2xl font-semibold text-brand-800 hover:underline"
+          >
+            {CONTACT.phoneDisplay}
+          </a>
+          {
+            HOURS.published && HOURS.office ? (
+              <dl class="mt-3 space-y-1 text-sm">
+                {HOURS.office.days.map((d) => (
+                  <div class="flex justify-between gap-3">
+                    <dt class="text-ink-600">{d.day}</dt>
+                    <dd class="font-medium text-brand-800">{d.hours}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p class="mt-3 text-sm text-ink-600">{HOURS.fallbackNote}.</p>
+            )
+          }
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>

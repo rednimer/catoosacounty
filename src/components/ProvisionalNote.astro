@@ -1,0 +1,54 @@
+---
+/**
+ * Renders a visible caveat wherever provisional data is shown.
+ *
+ * This exists because of a specific failure. The May 2026 build published a unit
+ * size table and a set of opening hours that came from nowhere — no source, no
+ * caveat, presented as fact. Anything the business has not confirmed either does
+ * not ship or ships wearing this note.
+ *
+ * Returns nothing when `when` is false, so removing the caveat is a one-line data
+ * change (`CATALOGUE_PROVISIONAL = false`) rather than an edit to every page.
+ */
+import { CONTACT } from '../data/site';
+
+interface Props {
+  when: boolean;
+  children?: unknown;
+}
+
+const { when } = Astro.props;
+---
+
+{
+  when && (
+    <p
+      class="flex items-start gap-2.5 rounded-card border border-accent-200
+             bg-accent-50 p-4 text-sm leading-relaxed text-ink-700"
+    >
+      <svg
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        class="mt-0.5 h-4 w-4 shrink-0 text-accent-700"
+        aria-hidden="true"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5
+             0v3.5a.75.75 0 0 0 1.5 0v-3.5ZM10 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span>
+        <slot />{' '}
+        <a
+          href={CONTACT.phoneHref}
+          class="font-semibold text-brand-700 underline underline-offset-2"
+        >
+          Call {CONTACT.phoneDisplay}
+        </a>{' '}
+        to confirm what is available today.
+      </span>
+    </p>
+  )
+}

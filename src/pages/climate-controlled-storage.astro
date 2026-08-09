@@ -1,0 +1,182 @@
+---
+/**
+ * Climate-controlled storage.
+ *
+ * The single most important page on this site. It is the one product the business
+ * genuinely differentiates on, it is what the directory listings put in the legal
+ * name ("Catoosa County Climate Controlled & Self Storage"), and "climate
+ * controlled storage <city>" is the highest-intent query in this market.
+ *
+ * Every claim here is either (a) the verified product description from the live
+ * site, or (b) general facts about humidity and materials that are true
+ * independent of this facility. Nothing asserts a specific temperature range or
+ * humidity setpoint — we have not been given one.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+import { CONTACT, ADDRESS } from '../data/site';
+
+const crumbs = [
+  { name: 'Climate Controlled Storage', href: '/climate-controlled-storage' },
+];
+
+const AT_RISK = [
+  {
+    thing: 'Solid wood furniture',
+    what: 'Wood takes on and gives up moisture with the air around it. Through a humid summer and a dry winter it swells and shrinks, and joints, veneer and glue give way.',
+  },
+  {
+    thing: 'Upholstery and mattresses',
+    what: 'Fabric and foam hold damp. Above roughly 60% relative humidity mildew gets going, and the smell does not come out.',
+  },
+  {
+    thing: 'Photographs and paper',
+    what: 'Prints stick to each other and to glass, documents cockle and ink migrates. Not reversible.',
+  },
+  {
+    thing: 'Electronics and appliances',
+    what: 'Condensation forms on cold metal when warm damp air reaches it. It corrodes contacts and circuit boards from the inside.',
+  },
+  {
+    thing: 'Instruments and vinyl',
+    what: 'Wooden instruments crack and go out of adjustment. Records warp well below the temperature an uncontrolled unit reaches in August.',
+  },
+  {
+    thing: 'Business and medical records',
+    what: 'Files you may have to produce years later. Damp is the reason archive storage exists.',
+  },
+];
+
+const faqs = [
+  {
+    question: 'What does climate controlled actually mean here?',
+    answer:
+      'The units are temperature and humidity controlled — both, not just temperature. Humidity is the part that matters most in North Georgia, because it is what causes mildew, warping and corrosion. Call us for the current setpoints.',
+  },
+  {
+    question: 'Is climate control worth the extra cost?',
+    answer:
+      'It depends entirely on what you are storing and for how long. For tools, patio furniture and boxed yard equipment, a drive-up unit is the sensible choice. For anything wooden, upholstered, electronic, paper or irreplaceable — especially over a summer — the price difference is usually less than the cost of replacing one damaged piece.',
+  },
+  {
+    question: 'Do I need it for a short stay?',
+    answer:
+      'A few weeks in winter, often not. A few weeks in July and August is when uncontrolled units get hottest and most humid, so short summer stays are exactly when people are most surprised by the damage.',
+  },
+  {
+    question: 'Do you have climate-controlled units in every size?',
+    answer: `Availability changes as units come and go. Call ${CONTACT.phoneDisplay} and we will tell you what is open in climate control today.`,
+  },
+];
+---
+
+<BaseLayout
+  title="Climate-Controlled Storage, Rossville"
+  description="Temperature and humidity controlled storage in Rossville, GA. Protect furniture, electronics and photos from North Georgia damp. Call (706) 858-6498."
+  breadcrumbs={crumbs}
+  faqs={faqs}
+>
+  <PageHeader
+    eyebrow="Climate controlled"
+    title="Humidity is what actually ruins things"
+    lede="Most people think of a storage unit getting hot. In North Georgia it is the damp that does the damage — and it is the part a climate-controlled unit is built to remove."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-16">
+      <div>
+        <h2 class="text-headline font-semibold">Why it matters here specifically</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Rossville sits in a humid subtropical climate. Summers here are long, warm
+          and wet, and an uninsulated metal building tracks that closely — it gets
+          hotter than the outside air during the day and then cools at night, which
+          is when moisture condenses onto whatever is coldest inside the unit.
+        </p>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          That daily cycle, repeated across a summer, is what loosens furniture
+          joints, blooms mildew across upholstery and corrodes the inside of
+          electronics. A climate-controlled unit holds both temperature and humidity
+          steady, so the cycle never happens.
+        </p>
+
+        <h2 class="mt-14 text-headline font-semibold">What belongs in one</h2>
+        <ul class="mt-8 grid gap-6 sm:grid-cols-2">
+          {
+            AT_RISK.map((item) => (
+              <li>
+                <h3 class="font-semibold text-brand-800">{item.thing}</h3>
+                <p class="mt-1.5 text-sm leading-relaxed text-ink-600">{item.what}</p>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="mt-14 rounded-card border border-brand-200/70 bg-brand-50 p-6 sm:p-8">
+          <h2 class="text-xl font-semibold">And what does not</h2>
+          <p class="mt-2 leading-relaxed text-ink-600">
+            We are not going to talk you into the more expensive unit for things that
+            do not need it. Lawn equipment, hand and power tools, patio furniture,
+            car parts, building materials, tyres, boxed decorations and most
+            plastic-crated household overflow are all fine in a drive-up unit — and
+            a drive-up unit is quicker to load, because you park at the door.
+          </p>
+          <a
+            href="/units"
+            class="mt-5 inline-flex min-h-11 items-center font-semibold text-brand-700
+                   underline decoration-2 underline-offset-4 hover:text-brand-800"
+          >
+            Compare sizes and types
+          </a>
+        </div>
+
+        <h2 class="mt-14 text-headline font-semibold">Questions</h2>
+        <div class="mt-8">
+          <FaqAccordion faqs={faqs} />
+        </div>
+      </div>
+
+      <aside class="space-y-6 lg:sticky lg:top-28 lg:self-start">
+        <div class="card">
+          <h2 class="font-semibold text-brand-800">Ask what is open</h2>
+          <p class="mt-2 text-sm leading-relaxed text-ink-600">
+            Climate-controlled units are the first to go. We will tell you what is
+            actually available today rather than what the website says.
+          </p>
+          <a
+            href={CONTACT.phoneHref}
+            class="mt-4 block text-2xl font-semibold text-brand-800 hover:underline"
+          >
+            {CONTACT.phoneDisplay}
+          </a>
+          <a href="/reserve" class="btn-primary mt-4 !w-full !py-2.5 !text-sm">
+            Check availability
+          </a>
+        </div>
+
+        <div class="card">
+          <h2 class="font-semibold text-brand-800">Where we are</h2>
+          <address class="mt-2 not-italic leading-relaxed text-ink-600">
+            {ADDRESS.street}<br />
+            {ADDRESS.city}, {ADDRESS.state} {ADDRESS.zip}
+          </address>
+          <p class="mt-3 text-sm leading-relaxed text-ink-600">{ADDRESS.accessNote}</p>
+          <a
+            href="/location"
+            class="mt-3 inline-flex min-h-11 items-center text-sm font-semibold
+                   text-brand-700 underline underline-offset-4"
+          >
+            Directions
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <CtaBand
+    heading="Want a climate-controlled unit?"
+    body="Tell us roughly what you are storing and we will tell you what size makes sense and what is open."
+  />
+</BaseLayout>

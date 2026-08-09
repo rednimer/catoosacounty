@@ -1,0 +1,285 @@
+@import 'tailwindcss';
+
+/*
+ * Outfit Variable — Latin subset only (32 kB, one file, all weights 100–900).
+ *
+ * Declared by hand rather than importing @fontsource-variable/outfit, which also
+ * ships Latin-Ext faces this site never renders.
+ *
+ * Outfit is a precise geometric sans — near-circular bowls, even stroke, flat
+ * terminals. That is the CLIMATE CLEAR brief's "precise geometric sans-serif with
+ * wide letter spacing", and it is a deliberate break from the Cañon City site's
+ * Inter (a neutral UI grotesque). Geometric faces get vague at small sizes, so
+ * body copy runs at 400/450 and the wide tracking is reserved for display and
+ * eyebrow text where it reads as precision rather than as a gap.
+ *
+ * font-display: swap keeps text visible during load (no FOIT, better LCP).
+ */
+@font-face {
+  font-family: 'Outfit Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * Metric-matched fallback.
+ *
+ * `font-display: swap` paints in a fallback face first, then swaps — and if the two
+ * faces have different metrics the swap reflows the page. On the Cañon City build
+ * that reflow was the entire mobile CLS (0.087), so it is worth getting right.
+ *
+ * Values below were MEASURED in the browser against the shipped woff2, not guessed —
+ * `npm run measure:font` reproduces them. Outfit is slightly narrower than Arial
+ * (size-adjust 97.97%) with a taller ascent, so the naive "leave everything at 100%"
+ * default would have left a real shift on every heading.
+ */
+@font-face {
+  font-family: 'Outfit Fallback';
+  src: local('Arial');
+  ascent-override: 102.08%;
+  descent-override: 26.54%;
+  line-gap-override: 0%;
+  size-adjust: 97.97%;
+}
+
+/*
+ * Design tokens — Catoosa County Storage
+ * Art direction: CLIMATE CLEAR
+ *
+ * Cool, calm, clinical, precise, premium. Frost and condensation, matte white
+ * powder-coated metal, temperature gradients, and a lot of white space.
+ *
+ * The five brand colours are anchored exactly; the rest of each ramp is built
+ * around them:
+ *   #0E3A5C  deep navy    → brand-800
+ *   #2E9BC9  bright cyan  → accent-500
+ *   #EAF3F8  pale ice     → brand-100
+ *   #FFFFFF  white
+ *   #6B7A85  cool gray    → ink-500
+ *
+ * ── CONTRAST RULES (do not break) ────────────────────────────────────────────
+ * Two of the five brand colours are NOT safe for body text. Measured on white:
+ *
+ *   accent-500 #2E9BC9 — 3.16:1. FAILS AA for normal text. Fills, rules, icons
+ *                        and large display only. The CTA works because the text
+ *                        on it is brand-950 #062639, which is 4.92:1 — never put
+ *                        white text on accent-500.
+ *   ink-500    #6B7A85 — 4.44:1. Just under the 4.5 line. Borders, dividers and
+ *                        large text only; use ink-600 (6.12:1) for body copy.
+ *
+ * Safe for text on white: brand-600 7.14:1, brand-700 9.55:1, brand-800 11.74:1,
+ * accent-600 4.64:1, accent-700 5.76:1, ink-600 6.12:1.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+@theme {
+  /* Deep navy — the structural colour: headings, dark panels, footer */
+  --color-brand-50: #f5fafd;
+  --color-brand-100: #eaf3f8; /* brand pale ice */
+  --color-brand-200: #cfe2ee;
+  --color-brand-300: #a5c8dd;
+  --color-brand-400: #6fa5c5;
+  --color-brand-500: #3d7ba5;
+  --color-brand-600: #1f5c85; /* text-safe — 7.14:1 */
+  --color-brand-700: #14496c; /* text-safe — 9.55:1 */
+  --color-brand-800: #0e3a5c; /* brand navy — 11.74:1 */
+  --color-brand-900: #0b2c46;
+  --color-brand-950: #062639; /* CTA label colour */
+
+  /* Bright cyan — the signal colour: actions, accents, frost highlights */
+  --color-accent-50: #eff9fd;
+  --color-accent-100: #d8f0fa;
+  --color-accent-200: #b3e2f4;
+  --color-accent-300: #7fcdea;
+  --color-accent-400: #4fb3da;
+  --color-accent-500: #2e9bc9; /* brand cyan — fills/large only, 3.16:1 */
+  --color-accent-600: #1f7da8; /* text-safe — 4.64:1 */
+  --color-accent-700: #1b6e92; /* text-safe — 5.76:1 */
+  --color-accent-800: #195a76;
+
+  /*
+   * Error red. Needed as its own token because this palette has no warm colour:
+   * on the Cañon City site the brand itself was red, so form errors could reuse
+   * `brand`. Here that would render "This field is required" in the same calm navy
+   * as body copy and it would not read as an error at all.
+   * danger-600 #b42318 is 6.57:1 on white.
+   */
+  --color-danger-50: #fef3f2;
+  --color-danger-200: #fecdca;
+  --color-danger-500: #d92d20;
+  --color-danger-600: #b42318;
+
+  /* Cool gray — neutrals, tuned to sit with the navy rather than fight it */
+  --color-ink-50: #f7f9fa;
+  --color-ink-100: #eef1f4;
+  --color-ink-200: #dde3e8;
+  --color-ink-300: #c2cbd3;
+  --color-ink-400: #97a4ae;
+  --color-ink-500: #6b7a85; /* brand gray — 4.44:1, NOT body-text safe */
+  --color-ink-600: #55636d; /* body copy — 6.12:1 */
+  --color-ink-700: #444f58;
+  --color-ink-800: #364047;
+  --color-ink-900: #1e2a34;
+  --color-ink-950: #121a21;
+
+  /* 'Outfit Fallback' sits directly after the real face so the metric-matched
+     stand-in is what paints during the swap window, not raw system-ui. */
+  --font-sans: 'Outfit Variable', 'Outfit Fallback', ui-sans-serif, system-ui,
+    -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Fluid display sizes — no layout shift between breakpoints. */
+  --text-display: clamp(2.25rem, 1.45rem + 3.4vw, 4.25rem);
+  --text-headline: clamp(1.75rem, 1.3rem + 1.9vw, 2.75rem);
+
+  /* Soft, not sharp. "Premium and clinical" reads as smooth radii and generous
+     space, unlike the hard utility edges a yard-and-padlock direction would want. */
+  --radius-card: 0.625rem;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Offset anchor targets so the sticky header never covers a heading. */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    @apply bg-white font-sans text-ink-600 antialiased;
+    /* Leaves room for the sticky mobile call bar so it never covers content. */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Headings are navy, not black — the direction is cool, never neutral. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-brand-800 font-semibold tracking-tight text-balance;
+  }
+
+  p {
+    @apply text-pretty;
+  }
+
+  /* Visible, consistent focus for keyboard users on every interactive element. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent-700;
+  }
+
+  /* Astro <Image> emits width/height; this keeps them fluid without CLS. */
+  img {
+    @apply max-w-full;
+  }
+}
+
+/* ── Components ───────────────────────────────────────────────────────────── */
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /*
+   * Primary CTA — bright cyan fill with near-black navy text.
+   *
+   * The obvious move (cyan fill, white text) measures 3.16:1 and fails AA. Dark
+   * navy on the same cyan is 4.92:1 and passes, and it looks better: the button
+   * reads as a lit panel rather than a flat blue rectangle.
+   */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-accent-500
+           px-6 py-3.5 text-base font-semibold tracking-tight text-brand-950
+           shadow-sm transition hover:bg-accent-400 active:bg-accent-600
+           focus-visible:outline-2 focus-visible:outline-offset-2
+           focus-visible:outline-brand-800;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md
+           border border-brand-200 bg-white px-6 py-3
+           text-base font-semibold text-brand-700 shadow-sm transition
+           hover:border-accent-400 hover:bg-brand-50
+           focus-visible:outline-2 focus-visible:outline-offset-2
+           focus-visible:outline-accent-700;
+  }
+
+  /* For use on dark/photographic backgrounds. */
+  .btn-on-dark {
+    @apply inline-flex items-center justify-center gap-2 rounded-md
+           border border-white/40 bg-white/10 px-6 py-3
+           text-base font-semibold text-white backdrop-blur-sm transition
+           hover:bg-white hover:text-brand-800
+           focus-visible:outline-2 focus-visible:outline-offset-2
+           focus-visible:outline-white;
+  }
+
+  /*
+   * Cards read as frosted panels: near-white, hairline cool border, and a soft
+   * cyan glow on hover rather than a heavy shadow. No left rule, no hard edge —
+   * this direction is about air and clarity, not utility signage.
+   */
+  .card {
+    @apply rounded-card border border-brand-200/70 bg-white p-6
+           shadow-[0_1px_2px_rgba(14,58,92,0.04)] transition
+           hover:border-accent-300
+           hover:shadow-[0_8px_28px_-12px_rgba(46,155,201,0.35)];
+  }
+
+  /* Accessible section eyebrow. Wide tracking is the direction's signature. */
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.22em] text-accent-700;
+  }
+
+  /*
+   * Frost field — the background texture for hero and feature panels.
+   *
+   * Condensation and frosted glass, drawn entirely in CSS gradients so it costs
+   * zero requests and stays crisp at any density. Three layers:
+   *   1. scattered soft cyan droplets of varying size
+   *   2. a fine diagonal hatch, the "frosted glass" grain
+   *   3. a cool temperature gradient falling to pale ice at the bottom
+   */
+  .frost-field {
+    background-color: #fff;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(46, 155, 201, 0.13) 0, transparent 22%),
+      radial-gradient(circle at 82% 12%, rgba(46, 155, 201, 0.1) 0, transparent 18%),
+      radial-gradient(circle at 68% 62%, rgba(46, 155, 201, 0.09) 0, transparent 26%),
+      radial-gradient(circle at 28% 78%, rgba(46, 155, 201, 0.07) 0, transparent 20%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(14, 58, 92, 0.022) 0 1px,
+        transparent 1px 7px
+      ),
+      linear-gradient(180deg, #ffffff 0%, #f7fbfd 45%, #eaf3f8 100%);
+  }
+
+  /* Screen-reader-only, but focusable (used by the skip link). */
+  .sr-only-focusable {
+    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4
+           focus:z-50 focus:rounded-md focus:bg-brand-800 focus:px-4 focus:py-3
+           focus:text-white;
+  }
+}

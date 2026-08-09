@@ -1,0 +1,184 @@
+---
+/**
+ * Storage unit size guide.
+ *
+ * The main organic play. "What size storage unit do I need" is the highest-volume
+ * informational query in this category, and it converts because someone asking it
+ * is already moving.
+ *
+ * Built off the same UNITS array as /units so the two pages can never disagree.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+import ProvisionalNote from '../components/ProvisionalNote.astro';
+import { CONTACT } from '../data/site';
+import {
+  UNITS,
+  UNIT_TYPE_LABEL,
+  formatPrice,
+  CATALOGUE_PROVISIONAL,
+} from '../data/units';
+
+const crumbs = [
+  { name: 'Storage Unit Size Guide', href: '/storage-unit-size-guide' },
+];
+
+const faqs = [
+  {
+    question: 'What size storage unit do I need?',
+    answer:
+      'Match it to the home you are emptying. A studio fits in a 5x10, a one or two-bedroom apartment in a 10x10, a two or three-bedroom home in a 10x15, and a three or four-bedroom house in a 10x20. If you are between two sizes, take the larger one — you need aisle space to reach anything at the back.',
+  },
+  {
+    question: 'Should I round up or down?',
+    answer:
+      'Up, nearly always. The cost difference between adjacent sizes is small next to the cost of hiring a van twice because the first unit did not close. It is also much easier to live with a unit you can walk into.',
+  },
+  {
+    question: 'How high can I stack?',
+    answer:
+      'Units are taller than most people expect, so vertical space is where the capacity actually is. Heaviest and sturdiest at the bottom, nothing fragile load-bearing, and leave a gap at the top rather than wedging boxes against the ceiling.',
+  },
+  {
+    question: 'Do I need a walkway down the middle?',
+    answer:
+      'If you will visit more than once, yes. Leave a corridor to the back wall and put anything seasonal near the door. A perfectly packed unit you cannot get into is a false economy.',
+  },
+];
+
+const PACKING = [
+  {
+    title: 'Measure the big things, guess the rest',
+    body: 'Sofa, mattress, fridge, washer, dryer, dining table. Those four or five items decide the size; boxes fill in around them.',
+  },
+  {
+    title: 'Stack up, not out',
+    body: 'Uniform boxes stack far better than mixed ones. Heavy on the bottom, light on top, nothing fragile bearing weight.',
+  },
+  {
+    title: 'Dismantle what comes apart',
+    body: 'Bed frames, table legs and shelving. Tape the fixings to the underside of the piece they came off so they are still there in a year.',
+  },
+  {
+    title: 'Leave a path to the back',
+    body: 'Especially if this is a long stay. Seasonal and frequently-needed items go nearest the door.',
+  },
+  {
+    title: 'Lift furniture off the floor',
+    body: 'Pallets or battens under anything wooden or upholstered. Costs nothing and keeps the base out of any moisture.',
+  },
+  {
+    title: 'Cover, but let it breathe',
+    body: 'Cotton sheets or moving blankets over furniture. Sealed plastic traps moisture against the surface, which is worse than leaving it uncovered.',
+  },
+];
+---
+
+<BaseLayout
+  title="What Size Storage Unit Do I Need?"
+  description="A plain guide to storage unit sizes, from 5x5 to 10x30, matched to the rooms and homes they hold — plus packing tips. Catoosa County Storage, Rossville GA."
+  breadcrumbs={crumbs}
+  faqs={faqs}
+>
+  <PageHeader
+    eyebrow="Size guide"
+    title="What size storage unit do I need?"
+    lede="The honest short answer: match the unit to the home you are emptying, then go one size up if you are torn."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <div class="max-w-3xl">
+      <ProvisionalNote when={CATALOGUE_PROVISIONAL}>
+        The sizes below are the standard ladder. We have not yet confirmed which of
+        them this facility stocks.
+      </ProvisionalNote>
+    </div>
+
+    <div class="mt-12 space-y-10">
+      {
+        UNITS.map((u) => (
+          <article id={u.slug} class="scroll-mt-28 border-t border-brand-200/70 pt-10">
+            <div class="grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
+              <div>
+                <h2 class="text-3xl font-semibold text-brand-800">{u.name}</h2>
+                <p class="mt-1 text-sm text-ink-600">{u.sqft} sq ft</p>
+                <p class="mt-3 font-medium text-accent-700">{u.comparableTo}</p>
+                <p class="mt-3 text-sm font-semibold text-brand-800">
+                  {formatPrice(u.priceFrom)}
+                </p>
+                <p class="mt-1 text-xs text-ink-600">
+                  {u.availableIn.map((t) => UNIT_TYPE_LABEL[t]).join(' · ')}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-lg leading-relaxed text-ink-600">{u.fits}</p>
+                <h3 class="mt-6 text-sm font-semibold uppercase tracking-wider text-brand-800">
+                  Typically used for
+                </h3>
+                <ul class="mt-3 flex flex-wrap gap-2">
+                  {u.goodFor.map((g) => (
+                    <li class="rounded-full bg-brand-100 px-3 py-1 text-sm text-brand-800">
+                      {g}
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`/reserve?size=${u.slug}`}
+                  class="mt-5 inline-flex min-h-11 items-center font-semibold text-brand-700
+                         underline decoration-2 underline-offset-4 hover:text-brand-800"
+                >
+                  Ask about a {u.name}
+                </a>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="bg-brand-50 py-16 sm:py-20">
+    <div class="container-page">
+      <h2 class="text-headline font-semibold">Packing so it actually fits</h2>
+      <p class="mt-3 max-w-2xl text-lg text-ink-600">
+        Most people can drop a whole size by packing properly. These are the six
+        things that make the difference.
+      </p>
+      <div class="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          PACKING.map((tip) => (
+            <div class="border-l-2 border-accent-500 pl-5">
+              <h3 class="font-semibold text-brand-800">{tip.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-600">{tip.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16 sm:py-20">
+    <div class="max-w-3xl">
+      <h2 class="text-headline font-semibold">Common questions</h2>
+      <div class="mt-8">
+        <FaqAccordion faqs={faqs} />
+      </div>
+      <p class="mt-8 leading-relaxed text-ink-600">
+        Still not sure? Describe what you are storing and we will tell you which size
+        it lands in —{' '}
+        <a
+          href={CONTACT.phoneHref}
+          class="font-semibold text-brand-700 underline underline-offset-2"
+        >
+          {CONTACT.phoneDisplay}
+        </a>.
+      </p>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>

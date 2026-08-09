@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# The thank-you page is a post-submission state, not a landing page.
+Disallow: /reserve/thank-you
+
+Sitemap: https://catoosacountystorage.com/sitemap-index.xml

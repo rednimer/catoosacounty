@@ -1,0 +1,37 @@
+---
+/**
+ * Dark page header used by every interior page: breadcrumbs, h1, and a short
+ * lede. Keeps the interior pages visually consistent and gives the h1 a
+ * predictable, high-contrast home.
+ */
+import Breadcrumbs from './Breadcrumbs.astro';
+
+interface Crumb {
+  name: string;
+  href: string;
+}
+
+interface Props {
+  title: string;
+  lede?: string;
+  crumbs: Crumb[];
+  eyebrow?: string;
+}
+
+const { title, lede, crumbs, eyebrow } = Astro.props;
+---
+
+<section class="bg-brand-900">
+  <div class="container-page py-10 sm:py-14">
+    <Breadcrumbs crumbs={crumbs} onDark />
+    {eyebrow && <p class="mt-6 text-sm font-bold uppercase tracking-widest text-accent-300">{eyebrow}</p>}
+    <h1 class:list={['text-headline font-bold text-white', eyebrow ? 'mt-2' : 'mt-6']}>
+      {title}
+    </h1>
+    {
+      lede && (
+        <p class="mt-4 max-w-2xl text-lg leading-relaxed text-brand-100">{lede}</p>
+      )
+    }
+  </div>
+</section>

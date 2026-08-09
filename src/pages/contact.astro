@@ -1,0 +1,115 @@
+---
+/**
+ * Contact.
+ *
+ * Deliberately thin, and deliberately split: new customers go to the availability
+ * form, existing customers go to U-Haul for payments. That split is the whole point
+ * — the current site hands every visitor, prospect or not, straight to U-Haul.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { CONTACT, ADDRESS, HOURS, EXTERNAL } from '../data/site';
+
+const crumbs = [{ name: 'Contact', href: '/contact' }];
+
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  `${ADDRESS.street}, ${ADDRESS.city}, ${ADDRESS.state} ${ADDRESS.zip}`,
+)}`;
+---
+
+<BaseLayout
+  title="Contact Catoosa County Storage — Rossville, GA"
+  description="Call (706) 858-6498 or send us a message. Catoosa County Storage, 132 Mack Smith Road, Rossville GA 30741."
+  breadcrumbs={crumbs}
+>
+  <PageHeader
+    eyebrow="Contact"
+    title="Get in touch"
+    lede="Calling is the fastest way to get a straight answer on price and availability."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div class="card">
+        <h2 class="font-semibold text-brand-800">Call us</h2>
+        <a
+          href={CONTACT.phoneHref}
+          class="mt-2 block text-2xl font-semibold text-brand-800 hover:underline"
+        >
+          {CONTACT.phoneDisplay}
+        </a>
+        {
+          HOURS.published && HOURS.office ? (
+            <dl class="mt-4 space-y-1 text-sm">
+              {HOURS.office.days.map((d) => (
+                <div class="flex justify-between gap-3">
+                  <dt class="text-ink-600">{d.day}</dt>
+                  <dd class="font-medium text-brand-800">{d.hours}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p class="mt-4 text-sm leading-relaxed text-ink-600">
+              {HOURS.fallbackNote}.
+            </p>
+          )
+        }
+      </div>
+
+      <div class="card">
+        <h2 class="font-semibold text-brand-800">New customer</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-600">
+          Tell us the size you want and roughly when you need it, and we will confirm
+          what is open and what it costs.
+        </p>
+        <a href="/reserve" class="btn-primary mt-4 !w-full !py-2.5 !text-sm">
+          Check availability
+        </a>
+      </div>
+
+      <div class="card">
+        <h2 class="font-semibold text-brand-800">Already renting?</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-600">
+          Payments are handled through U-Haul. You can also pay by phone during
+          office hours.
+        </p>
+        <a
+          href={EXTERNAL.uhaulPayments}
+          rel="noopener"
+          class="btn-secondary mt-4 !w-full !py-2.5 !text-sm"
+        >
+          Make a payment
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-10 grid gap-6 md:grid-cols-2">
+      <div class="card">
+        <h2 class="font-semibold text-brand-800">Visit</h2>
+        <address class="mt-2 not-italic text-lg leading-relaxed text-ink-600">
+          {ADDRESS.street}<br />
+          {ADDRESS.city}, {ADDRESS.state} {ADDRESS.zip}
+        </address>
+        <p class="mt-3 text-sm leading-relaxed text-ink-600">{ADDRESS.accessNote}</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <a href="/location" class="btn-secondary !py-2.5 !text-sm">Directions</a>
+          <a href={mapsUrl} rel="noopener" class="btn-secondary !py-2.5 !text-sm">
+            Google Maps
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="font-semibold text-brand-800">Mail</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-600">
+          Cheques and money orders can be posted to the office at the address on the
+          left. Call first if you want to confirm an amount.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>

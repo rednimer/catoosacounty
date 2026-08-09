@@ -1,0 +1,64 @@
+---
+/**
+ * FAQ disclosure list.
+ *
+ * Deliberately NOT a <dl>. The first version wrapped each item in
+ * <dl><div><details><summary><dt>…</dt></summary><dd>…</dd></details></div></dl>,
+ * which is invalid — a <dl> may only contain <dt>, <dd>, <div>, <script> or
+ * <template>, and putting the <dt> inside a <summary> detaches it from the list
+ * structure entirely. axe flagged it on three pages (accessibility 90–92).
+ *
+ * This uses the plain disclosure pattern instead: <details> + <summary>, with a
+ * real heading inside the summary. The spec allows heading content in <summary>,
+ * so screen-reader users keep heading navigation and the questions still appear
+ * in the document outline.
+ *
+ * Pair with BaseLayout's `faqs` prop to emit matching FAQPage schema — pass the
+ * same array to both so the markup and the structured data cannot drift.
+ */
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  faqs: FaqItem[];
+  /** Match the surrounding outline: h3 under an h2 section heading. */
+  headingLevel?: 'h3' | 'h4';
+}
+
+const { faqs, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+---
+
+<div class="space-y-3">
+  {
+    faqs.map((faq) => (
+      <details class="group rounded-card border border-ink-200 bg-white">
+        <summary
+          class="flex cursor-pointer items-center justify-between gap-4 p-5 text-left
+                 marker:content-none focus-visible:outline-2 focus-visible:outline-offset-2
+                 focus-visible:outline-brand-700 [&::-webkit-details-marker]:hidden"
+        >
+          <Heading class="font-bold text-ink-900">{faq.question}</Heading>
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            class="h-5 w-5 shrink-0 text-brand-600 transition group-open:rotate-45"
+            aria-hidden="true"
+          >
+            <path
+              d="M10 4v12M4 10h12"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </summary>
+        <div class="border-t border-ink-200 px-5 py-4 leading-relaxed text-ink-700">
+          {faq.answer}
+        </div>
+      </details>
+    ))
+  }
+</div>
