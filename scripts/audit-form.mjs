@@ -90,11 +90,37 @@ for (const id of ['name-error', 'phone-error', 'email-error']) {
 for (const w of warnings) console.warn(`⚠ ${w}`);
 for (const e of errors) console.error(`✗ ${e}`);
 
-if (errors.length) {
+/**
+ * Missing-key handling differs by environment, on purpose.
+ *
+ * A missing WEB3FORMS_ACCESS_KEY must NEVER reach production: the page renders
+ * perfectly and every submission vanishes, so nobody finds out until a customer
+ * does. That is the whole reason this guard sits in Vercel's buildCommand.
+ *
+ * But it must not block a PREVIEW deploy either, or the site cannot be reviewed
+ * before the key exists — which is exactly the state a rebuild starts in. On
+ * preview a missing key degrades to a loud warning. Every other error (a dropped
+ * field, a missing role="alert", a broken action URL) still fails everywhere,
+ * because those are defects rather than pending configuration.
+ */
+const isPreview = process.env.VERCEL_ENV === 'preview';
+const keyOnly = errors.length === 1 && /access_key is EMPTY/.test(errors[0]);
+
+if (errors.length && isPreview && keyOnly) {
+  console.warn(
+    '\n⚠ PREVIEW BUILD: the reserve form has no access key, so submissions ' +
+      'on this URL will NOT be delivered. Set WEB3FORMS_ACCESS_KEY before ' +
+      'promoting to production — this same check fails the build there.',
+  );
+} else if (errors.length) {
   console.error(`\n${errors.length} problem(s) with the reserve form.`);
   process.exit(1);
+} else {
+  // Only claim the form is OK when it actually is. Printing the success line
+  // unconditionally meant the preview path warned that the key was missing and
+  // then immediately reported "key present ()" on the next line.
+  console.log(
+    `✓ Reserve form OK — key present (${accessKey.slice(0, 8)}…), posts to Web3Forms, ` +
+      `no-JS redirect set, honeypot hidden, ${warnings.length} warning(s)`,
+  );
 }
-console.log(
-  `✓ Reserve form OK — key present (${accessKey.slice(0, 8)}…), posts to Web3Forms, ` +
-    `no-JS redirect set, honeypot hidden, ${warnings.length} warning(s)`,
-);
