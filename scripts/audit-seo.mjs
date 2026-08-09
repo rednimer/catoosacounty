@@ -100,7 +100,18 @@ for (const file of pages) {
   const h1Count = (html.match(/<h1[\s>]/g) || []).length;
   if (h1Count !== 1) errors.push(`${rel}: ${h1Count} <h1> elements, expected exactly 1`);
 
-  if (/<img(?![^>]*\balt=)/.test(html)) errors.push(`${rel}: an <img> is missing alt`);
+  /*
+   * `alt(?:=|[\s>])`, not `alt=`.
+   *
+   * Astro renders an empty-string attribute as a BARE `alt`, not `alt=""`. An
+   * empty alt is the correct, spec-recommended marking for a decorative image —
+   * it tells a screen reader to skip it — so requiring the equals sign reported
+   * every properly-marked decorative image as an accessibility failure.
+   * The same quirk is why audit-form.mjs matches `value(?:="([^"]*)")?`.
+   */
+  if (/<img(?![^>]*\balt(?:=|[\s>]))/.test(html)) {
+    errors.push(`${rel}: an <img> is missing alt`);
+  }
 
   // Only index-eligible pages participate in duplicate + sitemap checks.
   if (!noindex) {
