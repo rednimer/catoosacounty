@@ -32,7 +32,9 @@ export interface Review {
   quote: string;
   /** As the reviewer published it. */
   author: string;
-  /** When it was posted, as Google reports it. */
+  /** 1-5, as given. */
+  rating: number;
+  /** When it was posted, as Google reports it. Always shown to the reader. */
   posted: string;
   /** Where it was actually published. */
   source: string;
@@ -55,30 +57,70 @@ export const GOOGLE_LISTING = {
 } as const;
 
 /**
- * Real customer reviews, verbatim.
+ * Real customer reviews, verbatim. Supplied by the owner from the Google listing
+ * 2026-08-09 — a legitimate route, unlike scraping Maps.
  *
- * Only three of the twenty-one are publicly readable without signing in to
- * Google, and only one of those is usable — the other two are five years old and
- * one of them predates the current ownership (it says so explicitly). So this
- * list is short because it is honest, not because the business lacks reviews.
+ * ── ON THE DATES ─────────────────────────────────────────────────────────────
+ * Every entry renders its age, and that is deliberate rather than incidental.
+ * A one-star review on the listing says "Poorly maintained after previous owner
+ * sold out" and is itself five years old, which puts the sale before roughly
+ * 2021. So the two eight-year-old reviews below almost certainly describe a
+ * different operator.
  *
- * To add the rest, legitimately:
- *   1. Google Places API `place_details` — up to five reviews, licensed for
- *      display provided Google is credited and the text is not edited.
- *   2. The owner copies them from the Google Business Profile dashboard.
- *
- * Scraping the remaining reviews out of Maps is against Google's terms and is
- * not an option.
+ * They are still real reviews of this facility at this address, and showing the
+ * date lets a reader weigh them — which is why the date is not optional in the
+ * UI. But if the owner wants only their own era represented, delete anything
+ * older than five years and the section reflows on its own.
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 export const REVIEWS: readonly Review[] = [
   {
     quote:
       'Great storage facility. Affordable and clear correspondence and communication from the owner. Very personable place if you prefer that to big storage companies',
     author: 'Hailey Nichols',
+    rating: 5,
     posted: 'a year ago',
     source: 'Google',
   },
+  {
+    quote: 'Secure, clean area. Friendly management!',
+    author: 'Heidi Hendley',
+    rating: 5,
+    posted: '8 years ago',
+    source: 'Google',
+  },
+  {
+    quote: 'Very friendly clean & convenient',
+    author: 'Robert Speer',
+    rating: 5,
+    posted: '8 years ago',
+    source: 'Google',
+  },
 ];
+
+/**
+ * Reviews that were supplied but are NOT displayed, and why.
+ *
+ * Recorded rather than quietly dropped, so the decisions are reviewable and
+ * nobody re-adds them by accident. Both are real and both are five stars.
+ */
+export const REVIEWS_WITHHELD = [
+  {
+    author: "Come on sweetheart let's do the twist",
+    quote:
+      'If u need a storage then come on over to Catoosa storage. Reasonable on rentals.',
+    posted: '4 years ago',
+    reason:
+      "Content is good and it is current-owner era, but the reviewer's Google display name reads as a joke handle. Printed as a byline under a testimonial it undercuts the section it is meant to strengthen. Include it if the owner would rather have the recency.",
+  },
+  {
+    author: 'Amanda Carrington',
+    quote: 'Good storage unit',
+    posted: '6 years ago',
+    reason:
+      'Three words. Real and positive, but it says nothing a reader can act on and it dilutes the stronger quotes beside it.',
+  },
+] as const;
 
 /** Gates every testimonial block on the site. */
 export const HAS_REVIEWS = REVIEWS.length > 0;
