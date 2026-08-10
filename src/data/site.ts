@@ -47,14 +47,24 @@ export const CONTACT = {
 } as const;
 
 export const ADDRESS = {
+  /**
+   * [GAP] The Google Business Profile reads `132 S Mack Smith Rd` — with an `S`
+   * this site does not have, and abbreviated. Yelp says `132 Mack Smith Rd`; the
+   * live site says `132 Mack Smith Road`. Three spellings of one address.
+   *
+   * NAP has to be byte-identical across the site, GBP and every directory to
+   * count as the same entity, so this needs deciding, not averaging. GBP is the
+   * one that drives local ranking — if the `S` is genuinely part of the address,
+   * change it here and match everywhere else to it.
+   */
   street: '132 Mack Smith Road',
   city: 'Rossville',
   state: 'GA',
   stateName: 'Georgia',
   /**
-   * [GAP] CONFLICT — the live payments page says 30742; every directory says 30741.
-   * Mack Smith Road runs near the boundary so both are plausible. Confirm before
-   * launch: a wrong ZIP in schema and on GBP actively suppresses local ranking.
+   * RESOLVED 2026-08-09. The Google Business Profile lists 30741, which settles
+   * the conflict against the live payments page's 30742 — GBP is the record that
+   * actually drives local ranking, so it wins.
    */
   zip: '30741',
   country: 'US',

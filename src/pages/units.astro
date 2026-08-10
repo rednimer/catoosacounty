@@ -12,6 +12,7 @@ import PageHeader from '../components/PageHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import ProvisionalNote from '../components/ProvisionalNote.astro';
 import Figure from '../components/Figure.astro';
+import ReviewBand from '../components/ReviewBand.astro';
 import { CONTACT } from '../data/site';
 import { IMAGES } from '../data/images';
 import {
@@ -164,6 +165,8 @@ const crumbs = [{ name: 'Units & Pricing', href: '/units' }];
       />
     </div>
   </section>
+
+  <ReviewBand compact />
 
   <CtaBand />
 </BaseLayout>
