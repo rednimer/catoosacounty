@@ -23,6 +23,37 @@ if (!existsSync(FILE)) {
 }
 
 const html = readFileSync(FILE, 'utf8');
+
+/**
+ * ── Degraded mode ────────────────────────────────────────────────────────────
+ * With no access key the reserve page deliberately renders no form at all — a
+ * call-first panel goes out instead. That is a safe, shippable state: the page
+ * is honest about how to reach the business and no submission can be lost.
+ *
+ * So the absence of a form is only a failure if it is UNINTENDED. Here it is
+ * checked as its own outcome: no form is fine provided the page still offers a
+ * working phone number. A form that exists but cannot deliver is the dangerous
+ * case, and that is still caught below.
+ */
+const hasForm = /<form[^>]*id="reserve-form"/.test(html);
+
+if (!hasForm) {
+  const hasPhoneLink = /href="tel:\+?\d+"/.test(html);
+  if (!hasPhoneLink) {
+    console.error(
+      '✗ The reserve page renders neither a form nor a tel: link, so there is\n' +
+        '  no way at all for a visitor to make contact. Not a safe fallback.',
+    );
+    process.exit(1);
+  }
+  console.warn(
+    '\n⚠ Reserve page is in CALL-ONLY mode — no WEB3FORMS_ACCESS_KEY, so the\n' +
+      '  form is not rendered and the page directs visitors to the phone instead.\n' +
+      '  Nothing is silently dropped, but every out-of-hours lead is lost.\n' +
+      '  Set WEB3FORMS_ACCESS_KEY in Vercel and redeploy to switch the form on.',
+  );
+  process.exit(0);
+}
 const attr = (name, re) => html.match(re)?.[1] ?? null;
 
 // ── The key ─────────────────────────────────────────────────────────────────
