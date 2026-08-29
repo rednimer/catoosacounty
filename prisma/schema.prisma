@@ -1,0 +1,182 @@
+// Fifth Street Labs — Production Hub data model
+// NOTE: SQLite (via Prisma) doesn't support native enums, so status/stage/type
+// fields are plain Strings constrained by the shared literal unions in
+// src/lib/constants.ts and validated at the API boundary with zod.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products  Product[]
+  orders    Order[]
+  shipments Shipment[]
+  invoices  Invoice[]
+}
+
+/// A trackable supply item: bottle, closure, label, bulk ingredient, dropper, box, etc.
+model Component {
+  id                 String   @id @default(cuid())
+  name               String
+  type               String // BOTTLE | CLOSURE | LABEL | BULK | DROPPER | BOX | OTHER
+  unitOfMeasure      String   @default("ea") // ea, oz, mL, lb...
+  onHandQty          Float    @default(0)
+  lowStockThreshold  Float    @default(0) // at/below this and above critical -> yellow
+  criticalThreshold  Float    @default(0) // at/below this -> red
+  trackedInOdoo      Boolean  @default(false)
+  odooProductRef     String? // external id/reference once Odoo integration is live
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  productLines   ProductComponent[]
+  componentChecks ComponentCheck[]
+}
+
+/// Bill-of-materials line: which components a product needs, and how much per unit produced.
+model ProductComponent {
+  id          String  @id @default(cuid())
+  productId   String
+  componentId String
+  role        String // BOTTLE | CLOSURE | LABEL | BULK | DROPPER | BOX | OTHER
+  qtyPerUnit  Float   @default(1)
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  component Component @relation(fields: [componentId], references: [id], onDelete: Restrict)
+
+  @@unique([productId, componentId, role])
+}
+
+/// A sellable SKU. Ties to Odoo/Amazon via fnsku.
+model Product {
+  id                    String   @id @default(cuid())
+  fnsku                 String?  @unique
+  name                  String
+  sizeLabel             String? // "1oz", "4oz", etc — free text, filterable
+  customerId            String?
+  trackInventory        Boolean  @default(true) // false for one-off/specialty items not worth tracking
+  customerSuppliesParts Boolean  @default(false) // customer ships us the parts, we just assemble
+  unitPrice             Float? // selling price per unit
+  cogsPerUnit           Float? // cost of goods per unit
+  productionGuidelines  String? // free text or a URL to guideline doc
+  active                Boolean  @default(true)
+  notes                 String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  customer   Customer?          @relation(fields: [customerId], references: [id])
+  components ProductComponent[]
+  orderItems OrderItem[]
+  shipments  Shipment[]
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  orderNumber String   @unique
+  customerId  String?
+  source      String   @default("MANUAL") // EMAIL | RESTOCK_REPORT | MANUAL
+  receivedAt  DateTime @default(now())
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  customer Customer?   @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+}
+
+model OrderItem {
+  id                   String    @id @default(cuid())
+  orderId              String
+  productId            String?
+  oneOffName           String? // for items not in the product catalog
+  oneOffFnsku          String?
+  quantity             Int
+  workOrderNumber      String?   @unique
+  priority             String    @default("NORMAL") // NORMAL | HOT
+  kanbanStage          String    @default("INCOMING")
+  trackInventory       Boolean   @default(true)
+  manualOverride       Boolean   @default(false)
+  notes                String?
+  sentToProductionAt   DateTime?
+  completedAt          DateTime?
+  actualQtyProduced    Int?
+  odooMakeOrderRef     String? // returned by the stub/real Odoo API once created
+  odooMakeOrderClosed  Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  order            Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product          Product?         @relation(fields: [productId], references: [id])
+  componentChecks  ComponentCheck[]
+  qaPhotos         QaPhoto[]
+}
+
+/// Snapshot of an inventory check for one component role on one order item.
+model ComponentCheck {
+  id             String   @id @default(cuid())
+  orderItemId    String
+  componentId    String
+  role           String // BOTTLE | CLOSURE | LABEL | BULK | DROPPER | BOX | OTHER
+  requiredQty    Float
+  onHandAtCheck  Float
+  status         String // GREEN | YELLOW | RED | MANUAL
+  manualOverride Boolean  @default(false)
+  note           String?
+  checkedAt      DateTime @default(now())
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  component Component @relation(fields: [componentId], references: [id])
+
+  @@unique([orderItemId, componentId, role])
+}
+
+model QaPhoto {
+  id          String   @id @default(cuid())
+  orderItemId String
+  url         String
+  caption     String?
+  uploadedAt  DateTime @default(now())
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+}
+
+model Shipment {
+  id         String   @id @default(cuid())
+  productId  String
+  customerId String
+  quantity   Int
+  unitPrice  Float // snapshot of Product.unitPrice at time of shipment
+  shippedAt  DateTime @default(now())
+  notes      String?
+  invoiceId  String?
+  createdAt  DateTime @default(now())
+
+  product  Product   @relation(fields: [productId], references: [id])
+  customer Customer  @relation(fields: [customerId], references: [id])
+  invoice  Invoice?  @relation(fields: [invoiceId], references: [id])
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  customerId  String
+  periodStart DateTime
+  periodEnd   DateTime
+  totalAmount Float
+  status      String   @default("DRAFT") // DRAFT | SENT | PAID
+  generatedAt DateTime @default(now())
+
+  customer  Customer   @relation(fields: [customerId], references: [id])
+  shipments Shipment[]
+}
