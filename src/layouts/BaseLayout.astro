@@ -141,6 +141,15 @@ const ogImageUrl = new URL(ogImage, SITE.url).href;
     <meta name="theme-color" content="#0e3a5c" />
 
     <Schema breadcrumbs={breadcrumbs} faqs={faqs} />
+
+    <!-- Google tag (gtag.js) -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-Q1C1F9ZLF0"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Q1C1F9ZLF0');
+    </script>
   </head>
 
   <body>
@@ -154,5 +163,14 @@ const ogImageUrl = new URL(ogImage, SITE.url).href;
 
     <Footer />
     <MobileCallBar />
+
+    <!--
+      One delegated listener for every page. Capture phase, so it records the
+      click or submit without changing navigation, validation, or the form.
+    -->
+    <script>
+      import { bindAnalytics } from '../scripts/analytics';
+      bindAnalytics(document);
+    </script>
   </body>
 </html>
