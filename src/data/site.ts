@@ -26,9 +26,9 @@ export const SITE = {
    */
   alternateName: 'Catoosa County Climate Controlled & Self Storage',
   url: 'https://catoosacountystorage.com',
-  tagline: 'Climate-controlled and drive-up storage in Rossville, Georgia',
+  tagline: 'Climate-controlled storage in Rossville, Georgia',
   description:
-    'Climate-controlled and drive-up self storage at 132 Mack Smith Road in Rossville, GA — minutes from Fort Oglethorpe and the Tennessee line. Call (706) 858-6498.',
+    'Climate-controlled storage in Rossville, GA. Indoor hallway units at 132 Mack Smith Road, and sealed dust-free containers at $100 a month. Call (706) 858-6498.',
 } as const;
 
 export const CONTACT = {
@@ -127,17 +127,27 @@ export const NAV = [
  *
  * Do NOT add without owner confirmation: gated/coded access, cameras, lighting,
  * individually locked units, paved drives, pest treatment, month-to-month terms,
- * "no deposit", RV/boat/vehicle storage, business storage, locally owned, or any
- * drive-time claim. All of those appeared as fact in the May build with no source.
+ * insurance, locks, business storage, locally owned, or any drive-time claim.
+ * All of those appeared as fact in the May build with no source.
+ *
+ * Monthly rates and "$25 one-time admin fee, no security deposit" are published
+ * from the WebSelfStorage Catoosa rate card (facility 1030704, read 2026-10-25)
+ * in src/data/units.ts. The 8x20 container is featured at $100. Covered parking
+ * stays off the pages. Container copy is limited to sealed and dust-free.
+ * Do not stretch the card into any other amenity.
  */
 export const FEATURES = [
   {
     title: 'Climate-controlled units',
-    body: 'Temperature and humidity controlled, so North Georgia summers stay out of your furniture, electronics and paperwork.',
+    body: 'Indoor units. You walk in a door and the units are along a hallway — not drive-up. Temperature and humidity are controlled, so North Georgia summers stay out of your furniture, electronics and paperwork.',
+  },
+  {
+    title: 'Sealed storage containers',
+    body: 'A premium option alongside the climate-controlled units. Sealed and dust-free, 8 by 20 feet and 8 feet high, $100 a month. Not climate-controlled, and not drive-up.',
   },
   {
     title: 'Drive-up units',
-    body: 'Pull your vehicle right to the door and unload. No stairs, no long carries.',
+    body: 'Pull your vehicle right to the door and unload. These three sizes are not climate-controlled.',
   },
   {
     title: 'Both kinds on one property',

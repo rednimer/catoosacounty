@@ -16,11 +16,19 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
-import ProvisionalNote from '../components/ProvisionalNote.astro';
 import Figure from '../components/Figure.astro';
 import ReviewBand from '../components/ReviewBand.astro';
 import { SITE, CONTACT, ADDRESS, HOURS, FEATURES, SERVICE_AREA } from '../data/site';
-import { UNITS, CATALOGUE_PROVISIONAL, PRICING_AVAILABLE } from '../data/units';
+import {
+  CLIMATE_UNITS,
+  DRIVE_UP_UNITS,
+  CONTAINERS,
+  UNIT_TYPE_LABEL,
+  formatPrice,
+  PRICING_AVAILABLE,
+  PRICING_SUMMARY,
+  RATE_TERMS,
+} from '../data/units';
 import { IMAGES } from '../data/images';
 
 const faqs = [
@@ -29,13 +37,13 @@ const faqs = [
     answer: `We are at ${ADDRESS.formatted}. ${ADDRESS.accessNote}`,
   },
   {
-    question: 'What is the difference between climate-controlled and drive-up units?',
+    question: 'What is the difference between climate-controlled units, containers, and drive-up?',
     answer:
-      'Climate-controlled units are temperature and humidity controlled, which protects furniture, electronics, photographs and paperwork through a Georgia summer. Drive-up units let you pull your vehicle right to the door, which makes loading and unloading much faster. We have both on the same property.',
+      'Climate-controlled units are indoors. You walk in a door and the units are along a hallway. They are not drive-up. Temperature and humidity are controlled, which protects furniture, electronics, photographs and paperwork through a Georgia summer. Sealed, dust-free storage containers are a separate premium option at $100 a month and are not climate-controlled. Drive-up units let you pull up to the door and are not climate-controlled.',
   },
   {
     question: 'How much does a unit cost?',
-    answer: `Rates depend on the size and whether you want climate control. Call ${CONTACT.phoneDisplay} and we will quote you the current rate and tell you what is open today.`,
+    answer: `${PRICING_SUMMARY} ${RATE_TERMS} Call ${CONTACT.phoneDisplay} to check what is open today.`,
   },
   {
     question: 'What size unit do I need?',
@@ -49,7 +57,7 @@ const faqs = [
 ];
 ---
 
-<BaseLayout title="Storage Units in Rossville, GA | Catoosa County Storage" description={SITE.description} faqs={faqs}>
+<BaseLayout title="Climate-Controlled Storage in Rossville, GA" description={SITE.description} faqs={faqs}>
   <!--
     ── Hero ────────────────────────────────────────────────────────────────
     Bright, not dark. The CLIMATE CLEAR direction is "bright even lighting,
@@ -72,13 +80,14 @@ const faqs = [
             Rossville &middot; Fort Oglethorpe &middot; Catoosa County
           </p>
           <h1 class="mt-5 text-display font-semibold leading-[1.03]">
-            Storage that holds its
-            <span class="text-accent-700">temperature</span>.
+            Climate-controlled storage
+            in <span class="text-accent-700">Rossville</span>.
           </h1>
           <p class="mt-6 text-lg leading-relaxed text-ink-600 sm:text-xl">
-            Climate-controlled units for the things that warp, rust and mildew in
-            a Georgia summer — plus drive-up units for everything that does not.
-            Both on one property off Cloud Springs Road.
+            Indoor climate-controlled units — you walk in a door and the units
+            are along a hallway — for the things that warp, rust and mildew in a
+            Georgia summer. Sealed, dust-free containers sit alongside them.
+            Drive-up units, which are not climate-controlled, are here too.
           </p>
 
           <div class="mt-9 flex flex-wrap gap-3">
@@ -107,13 +116,13 @@ const faqs = [
   <!-- ── The two products ──────────────────────────────────────────────── -->
   <section class="py-16 sm:py-20">
     <div class="container-page">
-      <h2 class="text-headline font-bold">Two kinds of unit, one address</h2>
+      <h2 class="text-headline font-bold">Climate-controlled storage, indoors</h2>
       <p class="mt-3 max-w-2xl text-lg text-ink-600">
-        Most people need one of each eventually. You do not have to pick a second
-        facility to get both.
+        You walk in a door and the units are along a hallway. They are not
+        drive-up. Sealed containers are the premium option alongside them.
       </p>
 
-      <div class="mt-10 grid gap-6 md:grid-cols-2">
+      <div class="mt-10 grid items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
         <article class="card !p-0 overflow-hidden">
           <Figure
             image={IMAGES.interiorClimateCorridorAlt}
@@ -122,13 +131,14 @@ const faqs = [
             class="[&>div]:rounded-none [&>div]:border-0 [&>div]:border-b [&>div]:border-brand-200/70"
           />
           <div class="p-6">
-          <h3 class="text-xl font-bold">Climate controlled</h3>
+          <h3 class="text-xl font-bold">Indoor climate-controlled</h3>
           <p class="mt-3 leading-relaxed text-ink-600">
-            Temperature and humidity controlled. Rossville sits in a humid
-            subtropical climate — solid wood joints loosen, upholstery mildews,
-            photographs stick together and electronics corrode in an
-            uncontrolled space. This is the unit for anything you would not
-            leave in a shed.
+            Temperature and humidity controlled, inside the building. You walk
+            in a door and the units are along a hallway. These are not drive-up
+            units. Rossville sits in a humid subtropical climate — solid wood
+            joints loosen, upholstery mildews, photographs stick together and
+            electronics corrode in an uncontrolled space. This is the unit for
+            anything you would not leave in a shed.
           </p>
           <ul class="mt-5 space-y-2 text-sm text-ink-700">
             <li class="flex gap-2.5">
@@ -154,44 +164,20 @@ const faqs = [
           </div>
         </article>
 
-        <article class="card !p-0 overflow-hidden">
-          <Figure
-            image={IMAGES.exteriorGreenDoors}
-            sizes="(min-width: 768px) 34rem, 100vw"
-            ratio="16/9"
-            grade
-            class="[&>div]:rounded-none [&>div]:border-0 [&>div]:border-b [&>div]:border-brand-200/70"
-          />
-          <div class="p-6">
-          <h3 class="text-xl font-bold">Drive-up</h3>
+        <article id="containers" class="card scroll-mt-28">
+          <p class="text-sm font-semibold uppercase tracking-widest text-accent-700">Premium option</p>
+          <h3 class="mt-2 text-xl font-bold">Sealed storage containers</h3>
+          <p class="mt-3 text-3xl font-bold text-brand-800">{formatPrice(CONTAINERS[0].price)}</p>
           <p class="mt-3 leading-relaxed text-ink-600">
-            Ground level, pull your car or trailer to the door and unload
-            straight in. No hallway, no corners to get a sofa around. This is
-            the cheaper unit and the right one for anything that tolerates
-            ordinary outdoor temperatures.
+            Alongside the climate-controlled units. {CONTAINERS[0].fits}
           </p>
-          <ul class="mt-5 space-y-2 text-sm text-ink-700">
-            <li class="flex gap-2.5">
-              <span class="text-accent-600" aria-hidden="true">&#10003;</span>
-              Tools, yard and garage equipment
-            </li>
-            <li class="flex gap-2.5">
-              <span class="text-accent-600" aria-hidden="true">&#10003;</span>
-              Patio furniture and seasonal gear
-            </li>
-            <li class="flex gap-2.5">
-              <span class="text-accent-600" aria-hidden="true">&#10003;</span>
-              Stock you load and unload often
-            </li>
-          </ul>
           <a
-            href="/units"
+            href="/units#8x20-container"
             class="mt-6 inline-flex min-h-11 items-center font-semibold text-brand-700
                    underline decoration-2 underline-offset-4 hover:text-brand-800"
           >
-            See sizes
+            Container details
           </a>
-          </div>
         </article>
       </div>
     </div>
@@ -204,10 +190,9 @@ const faqs = [
     <div class="container-page">
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 class="text-headline font-bold">Unit sizes</h2>
+          <h2 class="text-headline font-bold">Climate-controlled sizes</h2>
           <p class="mt-3 max-w-2xl text-lg text-ink-600">
-            Sized against rooms you already know, so you can picture it without a
-            tape measure.
+            Indoor units, matched to rooms you already know. These are not drive-up.
           </p>
         </div>
         <a href="/storage-unit-size-guide" class="btn-secondary !py-2.5 !text-sm">
@@ -215,16 +200,9 @@ const faqs = [
         </a>
       </div>
 
-      <div class="mt-8">
-        <ProvisionalNote when={CATALOGUE_PROVISIONAL}>
-          These are typical self-storage sizes. We have not yet confirmed which of
-          them this facility stocks, or in which type.
-        </ProvisionalNote>
-      </div>
-
       <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {
-          UNITS.map((u) => (
+          CLIMATE_UNITS.map((u) => (
             <li>
               <a
                 href={`/units#${u.slug}`}
@@ -234,13 +212,10 @@ const faqs = [
                   <h3 class="text-2xl font-bold text-ink-900">{u.name}</h3>
                   <span class="text-sm text-ink-600">{u.sqft} sq ft</span>
                 </div>
+                <p class="mt-1 text-sm text-ink-600">{UNIT_TYPE_LABEL[u.kind]}</p>
                 <p class="mt-1 font-semibold text-brand-700">{u.comparableTo}</p>
                 <p class="mt-3 text-sm leading-relaxed text-ink-600">{u.fits}</p>
-                <p class="mt-4 text-sm font-bold text-ink-900">
-                  {u.priceFrom !== null
-                    ? `From $${u.priceFrom}/mo`
-                    : 'Call for pricing'}
-                </p>
+                <p class="mt-4 text-sm font-bold text-ink-900">{formatPrice(u.price)}</p>
               </a>
             </li>
           ))
@@ -248,19 +223,39 @@ const faqs = [
       </ul>
 
       {
-        !PRICING_AVAILABLE && (
+        PRICING_AVAILABLE ? (
+          <p class="mt-6 text-sm text-ink-600">{RATE_TERMS}</p>
+        ) : (
           <p class="mt-6 text-sm text-ink-600">
-            Rates depend on size and whether you want climate control.{' '}
             <a
               href={CONTACT.phoneHref}
               class="font-semibold text-brand-700 underline underline-offset-2"
             >
               Call {CONTACT.phoneDisplay}
             </a>{' '}
-            for today's price and availability.
+            for today's availability.
           </p>
         )
       }
+
+      <div class="mt-10 border-t border-brand-200/70 pt-8">
+        <h3 class="text-xl font-bold">Drive-up units</h3>
+        <p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink-600">
+          Not climate-controlled. Three sizes, with pull-up access.
+        </p>
+        <ul class="mt-4 max-w-xl divide-y divide-brand-200/70">
+          {
+            DRIVE_UP_UNITS.map((u) => (
+              <li>
+                <a href={`/units#${u.slug}`} class="flex items-baseline justify-between gap-4 py-3">
+                  <span class="font-semibold text-brand-800">{u.name} drive-up</span>
+                  <span class="text-sm font-bold text-ink-900">{formatPrice(u.price)}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
     </div>
   </section>
 
