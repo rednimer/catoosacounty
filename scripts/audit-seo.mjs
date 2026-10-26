@@ -63,6 +63,26 @@ for (const file of pages) {
   const rel = relative(DIST, file).replace(/\\/g, '/');
   const html = readFileSync(file, 'utf8');
 
+  /*
+   * public/gone.html is the body of the 410 responses, reused for every
+   * removed spam URL. A canonical would tell Google those URLs are one page.
+   * The analytics tag must not run on that traffic either.
+   */
+  if (rel === 'gone.html') {
+    if (!/<meta name="robots" content="[^"]*noindex/.test(html)) {
+      errors.push('gone.html: missing noindex');
+    }
+    if (/<link rel="canonical"/.test(html)) {
+      errors.push('gone.html: must not declare a canonical');
+    }
+    if (/googletagmanager|gtag\(/.test(html)) {
+      errors.push('gone.html: must not load the analytics tag');
+    }
+    const goneH1 = (html.match(/<h1[\s>]/g) || []).length;
+    if (goneH1 !== 1) errors.push(`gone.html: ${goneH1} <h1> elements, expected exactly 1`);
+    continue;
+  }
+
   const canonical = pick(html, /<link rel="canonical" href="([^"]*)"/);
   const title = pick(html, /<title>([^<]*)<\/title>/);
   const desc = pick(html, /<meta name="description" content="([^"]*)"/);

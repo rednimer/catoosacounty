@@ -4,7 +4,48 @@
   "buildCommand": "npm run build && node scripts/audit-form.mjs",
   "outputDirectory": "dist",
   "cleanUrls": true,
-  "trailingSlash": false,
+  "routes": [
+    {
+      "src": "^/index\\.php/directions-and-contact/?$",
+      "status": 308,
+      "headers": { "Location": "/location" }
+    },
+    {
+      "src": "^/index\\.php/making-a-payment/?$",
+      "status": 308,
+      "headers": { "Location": "/contact" }
+    },
+    {
+      "src": "^/index\\.php/reserve-a-unit/?$",
+      "status": 308,
+      "headers": { "Location": "/reserve" }
+    },
+    {
+      "src": "^/index\\.php/?$",
+      "status": 308,
+      "headers": { "Location": "/" }
+    },
+    {
+      "src": "^/(?:gone/?|[^/]+/[0-9]+/?|index\\.php/.+)$",
+      "status": 410,
+      "dest": "/gone.html",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "X-Robots-Tag": "noindex",
+        "Cache-Control": "public, max-age=86400",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload"
+      }
+    },
+    {
+      "src": "^/(.*)/$",
+      "status": 308,
+      "headers": { "Location": "/$1" }
+    }
+  ],
   "redirects": [
     {
       "source": "/",
@@ -26,26 +67,6 @@
         }
       ],
       "destination": "https://catoosacountystorage.com/:path+",
-      "permanent": true
-    },
-    {
-      "source": "/index.php/making-a-payment",
-      "destination": "/contact",
-      "permanent": true
-    },
-    {
-      "source": "/index.php/directions-and-contact",
-      "destination": "/location",
-      "permanent": true
-    },
-    {
-      "source": "/index.php/reserve-a-unit",
-      "destination": "/reserve",
-      "permanent": true
-    },
-    {
-      "source": "/index.php/:path*",
-      "destination": "/",
       "permanent": true
     },
     {
