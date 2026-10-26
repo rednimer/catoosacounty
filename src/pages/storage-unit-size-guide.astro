@@ -12,15 +12,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
-import ProvisionalNote from '../components/ProvisionalNote.astro';
 import { Image } from 'astro:assets';
 import { CONTACT } from '../data/site';
 import { IMAGES } from '../data/images';
 import {
-  UNITS,
+  CLIMATE_UNITS,
+  DRIVE_UP_UNITS,
+  CONTAINERS,
   UNIT_TYPE_LABEL,
   formatPrice,
-  CATALOGUE_PROVISIONAL,
+  RATE_TERMS,
 } from '../data/units';
 
 const crumbs = [
@@ -31,7 +32,7 @@ const faqs = [
   {
     question: 'What size storage unit do I need?',
     answer:
-      'Match it to the home you are emptying. A studio fits in a 5x10, a one or two-bedroom apartment in a 10x10, a two or three-bedroom home in a 10x15, and a three or four-bedroom house in a 10x20. If you are between two sizes, take the larger one — you need aisle space to reach anything at the back.',
+      'Match it to the home you are emptying. A studio fits in a 5x10, a one or two-bedroom apartment in a 10x10, and a three or four-bedroom house in a 10x20. If you are between two sizes, take the larger one — you need aisle space to reach anything at the back.',
   },
   {
     question: 'Should I round up or down?',
@@ -79,29 +80,24 @@ const PACKING = [
 ---
 
 <BaseLayout
-  title="What Size Storage Unit Do I Need?"
-  description="A plain guide to storage unit sizes, from 5x5 to 10x30, matched to the rooms and homes they hold — plus packing tips. Catoosa County Storage, Rossville GA."
+  title="Climate-Controlled Unit Size Guide"
+  description="What size climate-controlled storage unit you need in Rossville, GA, from a 5x10 to a 10x20, plus a sealed container. Catoosa County Storage."
   breadcrumbs={crumbs}
   faqs={faqs}
 >
   <PageHeader
-    eyebrow="Size guide"
-    title="What size storage unit do I need?"
-    lede="The honest short answer: match the unit to the home you are emptying, then go one size up if you are torn."
+    eyebrow="Climate-controlled storage"
+    title="What size climate-controlled unit do I need?"
+    lede="Match the indoor unit to the home you are emptying, then go one size up if you are torn. These units are not drive-up."
     crumbs={crumbs}
   />
 
   <section class="container-page py-14 sm:py-20">
-    <div class="max-w-3xl">
-      <ProvisionalNote when={CATALOGUE_PROVISIONAL}>
-        The sizes below are the standard ladder. We have not yet confirmed which of
-        them this facility stocks.
-      </ProvisionalNote>
-    </div>
+    <p class="max-w-3xl text-sm leading-relaxed text-ink-600">{RATE_TERMS}</p>
 
     <div class="mt-12 space-y-10">
       {
-        UNITS.map((u) => (
+        CLIMATE_UNITS.map((u) => (
           <article id={u.slug} class="scroll-mt-28 border-t border-brand-200/70 pt-10">
             <div class="grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
               <div>
@@ -109,11 +105,9 @@ const PACKING = [
                 <p class="mt-1 text-sm text-ink-600">{u.sqft} sq ft</p>
                 <p class="mt-3 font-medium text-accent-700">{u.comparableTo}</p>
                 <p class="mt-3 text-sm font-semibold text-brand-800">
-                  {formatPrice(u.priceFrom)}
+                  {formatPrice(u.price)}
                 </p>
-                <p class="mt-1 text-xs text-ink-600">
-                  {u.availableIn.map((t) => UNIT_TYPE_LABEL[t]).join(' · ')}
-                </p>
+                <p class="mt-1 text-xs text-ink-600">{UNIT_TYPE_LABEL[u.kind]}</p>
               </div>
 
               <div>
@@ -133,13 +127,43 @@ const PACKING = [
                   class="mt-5 inline-flex min-h-11 items-center font-semibold text-brand-700
                          underline decoration-2 underline-offset-4 hover:text-brand-800"
                 >
-                  Ask about a {u.name}
+                  Ask about this {u.name}
                 </a>
               </div>
             </div>
           </article>
         ))
       }
+    </div>
+
+    <div id="8x20-container" class="mt-16 scroll-mt-28 border-t border-brand-200/70 pt-10">
+      <p class="text-sm font-semibold uppercase tracking-widest text-accent-700">Premium option</p>
+      <h2 class="mt-2 text-3xl font-semibold text-brand-800">Sealed storage container</h2>
+      <p class="mt-3 text-sm font-semibold text-brand-800">{formatPrice(CONTAINERS[0].price)}</p>
+      <p class="mt-3 max-w-2xl text-lg leading-relaxed text-ink-600">{CONTAINERS[0].fits}</p>
+      <a
+        href={`/reserve?size=${CONTAINERS[0].slug}`}
+        class="mt-5 inline-flex min-h-11 items-center font-semibold text-brand-700 underline decoration-2 underline-offset-4"
+      >
+        Ask about this container
+      </a>
+    </div>
+
+    <div class="mt-12 border-t border-brand-200/70 pt-8">
+      <h2 class="text-xl font-semibold text-brand-800">Drive-up units</h2>
+      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink-600">
+        Not climate-controlled. The same three footprints, with pull-up access.
+      </p>
+      <ul class="mt-4 max-w-xl divide-y divide-brand-200/70">
+        {
+          DRIVE_UP_UNITS.map((u) => (
+            <li class="flex items-baseline justify-between gap-4 py-3">
+              <span class="font-semibold text-brand-800">{u.name} {UNIT_TYPE_LABEL[u.kind]}</span>
+              <span class="text-sm font-bold">{formatPrice(u.price)}</span>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 

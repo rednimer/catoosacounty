@@ -5,17 +5,16 @@
  * Grouped, with FAQPage schema emitted from the same array that renders the page.
  *
  * Note what is NOT answered here: gate hours, access codes, security, minimum term,
- * deposits, insurance, locks and whether vehicles can be stored. Those are the most
- * commonly asked storage questions and we cannot answer any of them yet — see the
- * [GAP] list in _source/CONTENT-SOURCE.md §5 and §7. Inventing answers is exactly
- * what the previous build did. Once the owner confirms them this page roughly
- * doubles, and it is the highest-value content work left.
+ * insurance and locks. The admin fee and the absence of a security deposit are
+ * published from the Catoosa rate card — see src/data/units.ts. Inventing the
+ * rest is exactly what the previous build did.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
 import { CONTACT, ADDRESS, EXTERNAL } from '../data/site';
+import { PRICING_SUMMARY, RATE_TERMS } from '../data/units';
 
 const crumbs = [{ name: 'FAQ', href: '/faq' }];
 
@@ -29,12 +28,12 @@ const GROUPS = [
       },
       {
         question: 'How much does it cost?',
-        answer: `Rates depend on the size and on whether you want climate control. We quote the current price when you call rather than publishing one that could be out of date — ${CONTACT.phoneDisplay}.`,
+        answer: `${PRICING_SUMMARY} ${RATE_TERMS} Call ${CONTACT.phoneDisplay} to check what is open today.`,
       },
       {
         question: 'What size do I need?',
         answer:
-          'Roughly: a 5x10 takes a studio, a 10x10 a one or two-bedroom, a 10x15 a two or three-bedroom, and a 10x20 a three or four-bedroom house. The size guide breaks each one down by what actually fits. If you are between two, call us — going one size too small and moving twice is the expensive mistake.',
+          'Roughly: a 5x10 takes a studio, a 10x10 a one or two-bedroom, and a 10x20 a three or four-bedroom house. The size guide breaks each one down by what actually fits. If you are between two, call us — going one size too small and moving twice is the expensive mistake.',
       },
       {
         question: 'Can I see a unit before I commit?',
@@ -48,7 +47,7 @@ const GROUPS = [
       {
         question: 'What is the difference?',
         answer:
-          'Climate-controlled units are temperature and humidity controlled, which protects anything that reacts to damp and heat — wood, upholstery, electronics, paper, photographs. Drive-up units let you pull a vehicle straight to the door, which makes loading much faster and costs less. We have both on the same property.',
+          'Climate-controlled units are indoors. You walk in a door and the units are along a hallway. They are not drive-up. Temperature and humidity are controlled, which protects anything that reacts to damp and heat — wood, upholstery, electronics, paper, photographs. Sealed, dust-free containers are a separate premium option and are not climate-controlled. Drive-up units let you pull a vehicle straight to the door. They are not climate-controlled, and they cost less.',
       },
       {
         question: 'Which one do I need?',
@@ -88,14 +87,14 @@ const allFaqs = GROUPS.flatMap((g) => g.faqs);
 ---
 
 <BaseLayout
-  title="Storage FAQ — Catoosa County Storage, Rossville GA"
-  description="Common questions about climate-controlled and drive-up storage in Rossville, GA: sizes, pricing, the difference between unit types, and how to find us."
+  title="Climate-Controlled Storage FAQ"
+  description="Questions about climate-controlled storage in Rossville, GA: indoor units, sealed containers, sizes, monthly rates, and how to find us."
   breadcrumbs={crumbs}
   faqs={allFaqs}
 >
   <PageHeader
-    eyebrow="FAQ"
-    title="Questions we get asked"
+    eyebrow="Climate-controlled storage"
+    title="Questions about climate-controlled storage"
     lede="If your question is not here, calling is genuinely the fastest way to get an answer."
     crumbs={crumbs}
   />

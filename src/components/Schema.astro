@@ -7,7 +7,7 @@
  * the NAP in the markup can never drift from the NAP on the page.
  */
 import { SITE, CONTACT, ADDRESS, HOURS } from '../data/site';
-import { UNITS, PRICING_AVAILABLE } from '../data/units';
+import { UNITS, PRICING_AVAILABLE, RATE_TERMS, offerName, offerDescription } from '../data/units';
 
 interface Breadcrumb {
   name: string;
@@ -103,17 +103,27 @@ const business = {
     : {}),
   // Only advertise an offer catalogue once real rates exist — never emit a
   // price of 0 or a placeholder, which would be a structured-data violation.
+  // Availability is omitted on purpose: the rate card is a price list, not a
+  // live vacancy count, and at least one climate size was full on the day it
+  // was read. Asserting InStock would be a false offer.
   ...(PRICING_AVAILABLE && {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Storage units',
-      itemListElement: UNITS.filter((u) => u.priceFrom !== null).map((u) => ({
+      description: RATE_TERMS,
+      itemListElement: UNITS.map((u) => ({
         '@type': 'Offer',
-        name: `${u.name} storage unit`,
-        description: u.fits,
-        price: u.priceFrom,
+        name: offerName(u),
+        description: offerDescription(u),
+        price: u.price,
         priceCurrency: 'USD',
-        availability: 'https://schema.org/InStock',
+        url: `${SITE.url}/units#${u.slug}`,
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: u.price,
+          priceCurrency: 'USD',
+          unitText: 'MONTH',
+        },
       })),
     },
   }),
