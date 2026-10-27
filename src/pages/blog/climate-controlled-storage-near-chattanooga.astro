@@ -1,0 +1,161 @@
+---
+/**
+ * Service-area page for Chattanooga residents storing in Rossville.
+ *
+ * The road sequence is the public network: US-27 south from the south side of
+ * Chattanooga into Rossville, then GA-146 to Mack Smith Road. The last tenth
+ * of a mile and the "second house" landmark are the facility's own directions.
+ * No drive-time claims. Climate units are indoor hallway units, not drive-up.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import BlogAside from '../../components/BlogAside.astro';
+import { CONTACT, ADDRESS, HOURS, SITE } from '../../data/site';
+import {
+  CLIMATE_UNITS,
+  CONTAINERS,
+  formatPrice,
+  RATE_TERMS,
+} from '../../data/units';
+import { formatBlogDate, getBlogPost } from '../../data/blog';
+
+const post = getBlogPost('climate-controlled-storage-near-chattanooga');
+const humidity = getBlogPost('what-to-store-in-climate-controlled-storage');
+const container = CONTAINERS[0];
+const climateRates = CLIMATE_UNITS.map((u) => `${u.name} at ${formatPrice(u.price)}`).join(', ');
+
+const mapsQuery = encodeURIComponent(
+  `${ADDRESS.street}, ${ADDRESS.city}, ${ADDRESS.state} ${ADDRESS.zip}`,
+);
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+
+const crumbs = [
+  { name: 'Climate storage guides', href: '/blog' },
+  { name: post.crumb, href: post.href },
+];
+---
+
+<BaseLayout
+  title={post.documentTitle}
+  description={post.description}
+  breadcrumbs={crumbs}
+  article={{
+    headline: post.headline,
+    description: post.description,
+    datePublished: post.datePublished,
+    dateModified: post.dateModified,
+  }}
+>
+  <PageHeader
+    eyebrow="Climate-controlled storage"
+    title={post.headline}
+    lede="The units are in Rossville, Georgia, just south of the Tennessee line — indoor hallway storage, not a Chattanooga street address."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-16">
+      <article>
+        <p class="text-sm text-ink-600">
+          <time datetime={post.datePublished}>{formatBlogDate(post.datePublished)}</time>
+        </p>
+
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          {SITE.name} is at {ADDRESS.formatted}. That is Rossville, Georgia, not a
+          street address inside Chattanooga. The Tennessee line is about a mile
+          north of the building, which is why south Chattanooga and East Ridge
+          residents store on this side of the line. Catoosa County Storage has been
+          open since 2001. The climate-controlled units are indoors: you walk in a
+          door and the units are along a hallway. They are not drive-up.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">Directions from Chattanooga</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          From the south side of Chattanooga, take US-27 south on Rossville
+          Boulevard. The road continues into Rossville as Chickamauga Avenue
+          (US-27 / GA-1), then as Lafayette Road. Turn left onto Cloud Springs
+          Road (GA-146). Traveling east on Cloud Springs Road, turn left onto Mack
+          Smith Road and go north.
+        </p>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          {ADDRESS.accessNote} The address is {ADDRESS.formatted}. The office phone
+          is
+          <a
+            href={CONTACT.phoneHref}
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            {CONTACT.phoneDisplay}
+          </a>. {HOURS.fallbackNote}.
+        </p>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          <a
+            href={mapsUrl}
+            class="font-semibold text-brand-700 underline underline-offset-2"
+            rel="noopener"
+          >
+            Open 132 Mack Smith Road in Google Maps
+          </a>
+          if you want the turn list from wherever you are starting. The same
+          landmark is on the
+          <a href="/location" class="font-semibold text-brand-700 underline underline-offset-2">
+            location page
+          </a>.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">From East Ridge</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Mack Smith Road meets Ringgold Road (US-41 / US-76) in East Ridge, on
+          the Tennessee side of the line. From that intersection, follow Mack Smith
+          Road south to the building. The office landmark above is for the
+          northbound approach from Cloud Springs Road: on the right, after the
+          second house.           Coming south on Mack Smith Road, use the street number, {ADDRESS.street}, rather than expecting the office on your right.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">From I-75, Fort Oglethorpe, and Ringgold</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Leave I-75 at Exit 350 for Battlefield Parkway and head west through
+          Fort Oglethorpe. Stay on Battlefield Parkway to Cloud Springs Road
+          (GA-146), then go north on Mack Smith Road. That is the same approach
+          from the Ringgold side of the county: Exit 350, west on Battlefield
+          Parkway, then Cloud Springs Road to Mack Smith Road. {ADDRESS.accessNote}
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">What you are renting</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Indoor climate-controlled rates are {climateRates}. You walk in a door.
+          The units are along a hallway. They are not drive-up. {container.fits} It
+          is {formatPrice(container.price)}. {RATE_TERMS} Drive-up units are on the
+          same property and are not climate-controlled. Use those for tools and
+          yard equipment. Use the hallway units for wood furniture, electronics,
+          documents, photographs, instruments, and mattresses.
+          <a
+            href={humidity.href}
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            What to store in Georgia humidity
+          </a>
+          goes through each of those, including how to pack them.
+        </p>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Current rates are on
+          <a href="/units" class="font-semibold text-brand-700 underline underline-offset-2">
+            units and pricing
+          </a>. To ask what is open, use
+          <a href="/reserve" class="font-semibold text-brand-700 underline underline-offset-2">
+            check availability
+          </a>
+          or call {CONTACT.phoneDisplay}. A size can be full. We will tell you
+          what is actually open rather than guess from the page.
+        </p>
+      </article>
+
+      <BlogAside />
+    </div>
+  </section>
+
+  <CtaBand
+    heading="Coming from Chattanooga?"
+    body="Call with what you are storing. We will match it to an indoor climate-controlled size that is open."
+  />
+</BaseLayout>

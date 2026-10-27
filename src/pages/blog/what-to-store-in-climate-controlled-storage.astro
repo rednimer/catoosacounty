@@ -1,0 +1,272 @@
+---
+/**
+ * What belongs in indoor climate-controlled storage in Georgia humidity.
+ *
+ * Prices come from src/data/units.ts. Climate units are interior hallway
+ * units — never described as drive-up. The sealed container is not climate
+ * control. No setpoints, reviews, rankings, or rate-lock claims.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Figure from '../../components/Figure.astro';
+import BlogAside from '../../components/BlogAside.astro';
+import { CONTACT, ADDRESS } from '../../data/site';
+import { IMAGES } from '../../data/images';
+import {
+  CLIMATE_UNITS,
+  CONTAINERS,
+  formatPrice,
+  RATE_TERMS,
+} from '../../data/units';
+import { formatBlogDate, getBlogPost } from '../../data/blog';
+
+const post = getBlogPost('what-to-store-in-climate-controlled-storage');
+const chattanooga = getBlogPost('climate-controlled-storage-near-chattanooga');
+const container = CONTAINERS[0];
+const climateRates = CLIMATE_UNITS.map((u) => `${u.name} at ${formatPrice(u.price)}`).join(', ');
+
+const crumbs = [
+  { name: 'Climate storage guides', href: '/blog' },
+  { name: post.crumb, href: post.href },
+];
+---
+
+<BaseLayout
+  title={post.documentTitle}
+  description={post.description}
+  breadcrumbs={crumbs}
+  article={{
+    headline: post.headline,
+    description: post.description,
+    datePublished: post.datePublished,
+    dateModified: post.dateModified,
+  }}
+>
+  <PageHeader
+    eyebrow="Climate-controlled storage"
+    title={post.headline}
+    lede="Indoor hallway units in Rossville for the wood, electronics, paper, instruments and mattresses that Georgia humidity ruins."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-14 sm:py-20">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-16">
+      <article>
+        <p class="text-sm text-ink-600">
+          <time datetime={post.datePublished}>{formatBlogDate(post.datePublished)}</time>
+        </p>
+
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Georgia humidity is what ruins stored goods. Rossville sits in a humid
+          subtropical climate: summers are long, warm, and wet. An uninsulated metal
+          building tracks that weather. It runs hotter than the outside air in the
+          afternoon, then cools at night, and moisture condenses on the coldest
+          surface inside — a tabletop, a television, the back of a picture frame.
+          Repeated from June into September, that cycle loosens wood joints, blooms
+          mildew on fabric, cockles paper, and corrodes electronics from the inside.
+        </p>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Indoor climate-controlled storage stops the cycle. At {ADDRESS.street} the
+          climate-controlled units are inside the building. You walk in a door and
+          the units are along a hallway. They are not drive-up. Temperature and
+          humidity are both controlled. Catoosa County Storage has been open since
+          2001. The office is at {ADDRESS.formatted}, {CONTACT.phoneDisplay}.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">What heat and humidity do</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Heat alone does not grow mildew. Relative humidity above roughly 60
+          percent is where mildew starts on fabric, leather, and paper, and the
+          smell does not wash out. Wood takes on moisture when the air is wet and
+          gives it back when the air dries, so across a humid summer and a dry
+          winter glue lines open, veneer lifts, and drawers stick. Warm damp air
+          on a surface that cooled overnight beads into water, and on a circuit
+          board that water is corrosion.
+        </p>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          A climate-controlled unit holds temperature and humidity steadier. We do
+          not publish a setpoint. Call {CONTACT.phoneDisplay} if you need the
+          current targets. The
+          <a
+            href="/climate-controlled-storage"
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            climate-controlled storage page
+          </a>
+          is the short version of the same point.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">Wood furniture</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Solid wood tables, dressers, chairs, cabinets, and pianos are the clearest
+          reason to rent an indoor climate-controlled unit. Veneer and particle
+          board are more fragile: the face and the core move at different rates,
+          and the glue fails first. Take the drawers out, wrap the piece in a
+          cotton sheet or furniture pad, and do not use a tight plastic tarp — it
+          traps moisture already in the wood. Dry a rain-wet piece in the house
+          before it comes in, and pad corners before you stack anything on it.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">Electronics</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Televisions, computers, audio gear, and anything with a circuit board
+          should not spend a Georgia summer in an uncontrolled unit. Condensation
+          sits in connectors, and batteries leak in the heat. Take the batteries
+          out, box the device, and keep the box off the floor. Clean and dry
+          refrigerators and washers, prop the doors slightly ajar so the inside
+          cannot grow mold, and secure the doors so they cannot swing into the
+          hallway.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">Documents and photographs</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Paper and photographs do not recover once humidity has had them. Prints
+          stick to each other and to glass, documents cockle, and ink moves. Tax
+          files, business records, medical records, and photographs you cannot
+          reprint belong in climate control if they have to leave the house. Take
+          photos out of glass frames, store them flat, and skip cardboard that has
+          been sitting in a garage. Plastic boxes are fine when the paper goes in dry.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">Instruments</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Guitars, violins, pianos, and anything with a wooden soundboard crack and
+          go out of adjustment when humidity swings. A case helps. It does not
+          replace a controlled room through July and August. Loosen string tension
+          a little if the maker says to. Vinyl warps well below the heat an
+          uncontrolled metal unit reaches in August, so store records upright,
+          packed so they cannot lean.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">Mattresses and upholstered furniture</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Fabric and foam hold damp. A mattress that spends the summer in a humid
+          unit comes back with mildew in the foam. Clean it, make sure it is dry,
+          and use a breathable bag rather than sealed plastic. Do not store one
+          that got rained on. Sofas follow the same rule: vacuum them, dry them,
+          and cover them with a sheet. Climate control does not dry a sofa that
+          went in wet.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">How the indoor hallway units work</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          You park, walk in a door, and the climate-controlled units are along a
+          hallway. Loading is a hand truck or a few trips, not a tailgate at the
+          unit door. That access is why these units can hold an interior climate.
+          The drive-up units on the same property are a separate product: you pull
+          a vehicle to those doors, and they are not climate-controlled. Use them
+          for tools, patio furniture, yard equipment, and building materials. Use
+          the hallway for wood, electronics, paper, instruments, and mattresses.
+          Do not leave goods in the hallway while you sort a load.
+        </p>
+
+        <Figure
+          image={IMAGES.interiorClimateCorridor}
+          sizes="(min-width: 1024px) 44rem, 100vw"
+          class="mt-8"
+          caption="Inside the climate-controlled building: a hallway of interior units, not drive-up doors."
+        />
+
+        <h2 class="mt-12 text-headline font-semibold">Packing so climate control can work</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Climate control manages the air. It cannot dry a box you sealed wet.
+        </p>
+        <ul class="mt-4 list-disc space-y-3 pl-5 text-lg leading-relaxed text-ink-600">
+          <li>Dry everything first. One damp rug in a closed bin will mold the bin.</li>
+          <li>
+            Use breathable covers on wood and upholstery. Use plastic bins for paper
+            and small electronics only after those items are dry.
+          </li>
+          <li>
+            Keep boxes off the floor where you can, and leave a gap between the
+            stack and the wall so air moves.
+          </li>
+          <li>
+            Leave food, candles, and anything that melts or attracts pests at home.
+            Climate control is not a reason to store perishables.
+          </li>
+          <li>
+            Keep a box list. Six months later you will not remember which carton
+            holds the photographs.
+          </li>
+        </ul>
+
+        <h2 class="mt-12 text-headline font-semibold">The sealed container is not climate control</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          A third option sits alongside the hallway units and is easy to mix up
+          with them. {container.fits} It is {formatPrice(container.price)}. Rent it
+          when you want a closed, dust-free container and the goods can tolerate
+          North Georgia heat and humidity. Do not put photographs, instruments,
+          mattresses, or solid wood furniture in it and expect climate-controlled
+          conditions. Those belong in the indoor units. Details are on the
+          <a
+            href={`/units#${container.slug}`}
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            pricing page
+          </a>.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">What the indoor units cost</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          Indoor climate-controlled rates are {climateRates}. The sealed dust-free
+          container is {formatPrice(container.price)}. {RATE_TERMS} A size can be
+          full, so call
+          <a
+            href={CONTACT.phoneHref}
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            {CONTACT.phoneDisplay}
+          </a>
+          or
+          <a href="/reserve" class="font-semibold text-brand-700 underline underline-offset-2">
+            check availability
+          </a>
+          and we will quote what is open. The
+          <a
+            href="/storage-unit-size-guide"
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            size guide
+          </a>
+          walks through what fits each indoor unit, and the rates sit on
+          <a href="/units" class="font-semibold text-brand-700 underline underline-offset-2">
+            units and pricing
+          </a>:
+          <a href="/units#5x10-climate" class="font-semibold text-brand-700 underline underline-offset-2">5x10</a>,
+          <a href="/units#10x10-climate" class="font-semibold text-brand-700 underline underline-offset-2">10x10</a>,
+          and
+          <a href="/units#10x20-climate" class="font-semibold text-brand-700 underline underline-offset-2">10x20</a>.
+        </p>
+
+        <h2 class="mt-12 text-headline font-semibold">Rossville, Fort Oglethorpe, Chattanooga, and Ringgold</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-600">
+          The building is at {ADDRESS.formatted}, about a tenth of a mile north of
+          Cloud Springs Road (GA-146). {ADDRESS.accessNote} Rossville, Fort
+          Oglethorpe, and Ringgold are on the Georgia side. The Tennessee line is
+          about a mile north, so south Chattanooga is a normal drive.
+          <a
+            href={chattanooga.href}
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            Directions from Chattanooga
+          </a>
+          are written out separately, and the
+          <a href="/location" class="font-semibold text-brand-700 underline underline-offset-2">
+            location page
+          </a>
+          has the same Cloud Springs landmark. Tools can go in a drive-up unit. A
+          dresser should not spend a Georgia summer in one.
+        </p>
+      </article>
+
+      <BlogAside />
+    </div>
+  </section>
+
+  <CtaBand
+    heading="Want an indoor climate-controlled unit?"
+    body="Tell us what you are storing. We will say which size fits and what is open."
+  />
+</BaseLayout>
