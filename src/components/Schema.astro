@@ -19,12 +19,22 @@ interface FaqItem {
   answer: string;
 }
 
+interface ArticleMeta {
+  headline: string;
+  description: string;
+  datePublished: string;
+  dateModified?: string;
+  /** Canonical page URL. Required so mainEntityOfPage matches the visible page. */
+  pageUrl: string;
+}
+
 interface Props {
   breadcrumbs?: Breadcrumb[];
   faqs?: FaqItem[];
+  article?: ArticleMeta;
 }
 
-const { breadcrumbs = [], faqs = [] } = Astro.props;
+const { breadcrumbs = [], faqs = [], article } = Astro.props;
 
 const businessId = `${SITE.url}/#business`;
 
@@ -132,9 +142,11 @@ const business = {
 const graph: Record<string, unknown>[] = [business];
 
 if (breadcrumbs.length) {
+  // Visible breadcrumbs always start at Home. The list has to match.
+  const trail = [{ name: 'Home', href: '/' }, ...breadcrumbs];
   graph.push({
     '@type': 'BreadcrumbList',
-    itemListElement: breadcrumbs.map((crumb, i) => ({
+    itemListElement: trail.map((crumb, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       name: crumb.name,
@@ -151,6 +163,27 @@ if (faqs.length) {
       name: f.question,
       acceptedAnswer: { '@type': 'Answer', text: f.answer },
     })),
+  });
+}
+
+if (article) {
+  // BlogPosting is a subtype of Article. Headline must match the visible h1.
+  graph.push({
+    '@type': 'BlogPosting',
+    '@id': `${article.pageUrl}#article`,
+    headline: article.headline,
+    description: article.description,
+    datePublished: article.datePublished,
+    dateModified: article.dateModified ?? article.datePublished,
+    inLanguage: 'en-US',
+    author: {
+      '@type': 'Organization',
+      name: SITE.name,
+      url: SITE.url,
+    },
+    publisher: { '@id': businessId },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': article.pageUrl },
+    about: { '@id': businessId },
   });
 }
 
