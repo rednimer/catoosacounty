@@ -8,9 +8,8 @@
  * controlled storage <city>" is the highest-intent query in this market.
  *
  * Which sizes are climate-controlled, and what they cost, comes from the
- * Catoosa rate card in src/data/units.ts. The rest is either the verified
- * product description or general facts about humidity and materials. Nothing
- * asserts a specific temperature range or humidity setpoint.
+ * Catoosa rate card in src/data/units.ts. Temperature 65–80°F was confirmed
+ * 2026-11-06. That is not a humidity number and not a mold-free promise.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
@@ -18,7 +17,7 @@ import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
 import Figure from '../components/Figure.astro';
 import ReviewBand from '../components/ReviewBand.astro';
-import { CONTACT, ADDRESS } from '../data/site';
+import { CONTACT, ADDRESS, climateTemperaturePlain } from '../data/site';
 import { IMAGES } from '../data/images';
 import { UNITS, formatPrice, RATE_TERMS } from '../data/units';
 
@@ -60,13 +59,12 @@ const AT_RISK = [
 const faqs = [
   {
     question: 'What does climate controlled actually mean here?',
-    answer:
-      'The units are temperature and humidity controlled — both, not just temperature. Humidity is the part that matters most in North Georgia, because it is what causes mildew, warping and corrosion. Call us for the current setpoints.',
+    answer: `The units are indoors. You walk in a door and the units are along a hallway. They are not drive-up. ${climateTemperaturePlain()} Humidity is controlled as well. We do not publish a humidity number.`,
   },
   {
-    question: 'Is climate control worth the extra cost?',
+    question: 'Is climate control worth it in Georgia?',
     answer:
-      'It depends entirely on what you are storing and for how long. For tools, patio furniture and boxed yard equipment, a drive-up unit is the sensible choice. For anything wooden, upholstered, electronic, paper or irreplaceable — especially over a summer — the price difference is usually less than the cost of replacing one damaged piece.',
+      'It depends on the item and the season. Wood, electronics, documents, photographs, instruments, and mattresses are the case for an indoor unit through a Georgia summer. Tools, patio furniture, and yard equipment do not need it. Climate rates and drive-up rates are separate published prices, not a premium stacked on a lower rate. The questions page has the rate lists.',
   },
   {
     question: 'Do I need it for a short stay?',
@@ -108,15 +106,15 @@ const faqs = [
         <p class="mt-4 text-lg leading-relaxed text-ink-600">
           That daily cycle, repeated across a summer, is what loosens furniture
           joints, blooms mildew across upholstery and corrodes the inside of
-          electronics. A climate-controlled unit holds both temperature and humidity
-          steady, so the cycle never happens.
+          electronics. {climateTemperaturePlain()} Humidity is controlled as well.
+          We do not publish a humidity number, and a wet item can still mold.
         </p>
 
         <Figure
           image={IMAGES.interiorClimateCorridor}
           sizes="(min-width: 1024px) 44rem, 100vw"
           class="mt-10"
-          caption="Inside the climate-controlled building — interior access, no exposure to outside air."
+          caption="Owner photograph of the indoor climate-controlled hallway. Units are along the corridor, not drive-up."
         />
 
         <h2 class="mt-14 text-headline font-semibold">What belongs in one</h2>
@@ -164,6 +162,14 @@ const faqs = [
         <div class="mt-8">
           <FaqAccordion faqs={faqs} />
         </div>
+        <p class="mt-6 leading-relaxed text-ink-600">
+          Mold, clothes, pests, and the full rate lists are on the
+          <a href="/faq" class="font-semibold text-brand-700 underline underline-offset-2">questions page</a>.
+          Sizes are on
+          <a href="/units" class="font-semibold text-brand-700 underline underline-offset-2">units and pricing</a>.
+          <a href="/reserve" class="font-semibold text-brand-700 underline underline-offset-2">Check availability</a>
+          for what is open.
+        </p>
       </div>
 
       <aside class="space-y-6 lg:sticky lg:top-28 lg:self-start">

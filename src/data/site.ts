@@ -91,8 +91,14 @@ export const ADDRESS = {
  * "Call for current hours" instead of guessing, and Schema.astro omits
  * openingHoursSpecification entirely.
  *
- * Per the playbook: never assume 24/7, and never overstate gate access.
- * Flip to true and fill in `office` / `gate` once the owner confirms.
+ * Per the playbook: never assume a clock schedule, and never overstate gate access.
+ * Flip to true and fill in `office` / `gate` only when the owner supplies the hours.
+ *
+ * Confirmed 2026-11-06, separately from clock hours: the access phrase is exactly
+ * `24/7 access available`. That confirmation did not include office or gate
+ * open/close times, so those stay on the call fallback. Do not copy the phrase
+ * into openingHoursSpecification — a 24/7 schema hours block would invent a
+ * schedule the confirmation did not give.
  */
 export const HOURS = {
   published: false,
@@ -100,6 +106,35 @@ export const HOURS = {
   office: null as { label: string; note?: string; days: { day: string; hours: string }[] } | null,
   gate: null as { label: string; note?: string; days: { day: string; hours: string }[] } | null,
 } as const;
+
+/** Confirmed 2026-11-06. Exact wording. Not an office-hours schedule. */
+export const ACCESS_AVAILABLE = '24/7 access available';
+
+/**
+ * Confirmed 2026-11-06. Temperature only.
+ * Humidity is still controlled (the longstanding product claim) but no humidity
+ * number or mold-free promise was confirmed.
+ */
+export const CLIMATE_TEMPERATURE = { lowF: 65, highF: 80 } as const;
+
+export function climateTemperaturePlain(): string {
+  const { lowF, highF } = CLIMATE_TEMPERATURE;
+  return `Indoor climate-controlled units are held between ${lowF} and ${highF}°F. That is a temperature range, not a humidity setpoint, and it is not a guarantee that mold will not grow.`;
+}
+
+/** Access phrase plus the call fallback, until real office/gate hours exist. */
+export function accessAndOfficeNote(): string {
+  return HOURS.published
+    ? `${ACCESS_AVAILABLE}.`
+    : `${ACCESS_AVAILABLE}. ${HOURS.fallbackNote}.`;
+}
+
+/**
+ * Fort Oglethorpe approach already published on the location page.
+ * Roads only — no drive time was measured.
+ */
+export const FROM_FORT_OGLETHORPE =
+  'Take Battlefield Parkway across to Cloud Springs Road, follow it to Mack Smith Road and turn north. The office is on the right shortly after you turn in.';
 
 export const EXTERNAL = {
   /**
@@ -126,9 +161,12 @@ export const NAV = [
  * arrives and finds otherwise.
  *
  * Do NOT add without owner confirmation: gated/coded access, cameras, lighting,
- * individually locked units, paved drives, pest treatment, month-to-month terms,
- * insurance, locks, business storage, locally owned, or any drive-time claim.
+ * individually locked units, paved drives, pest treatment, insurance, locks,
+ * business storage, locally owned, or any drive-time claim.
  * All of those appeared as fact in the May build with no source.
+ *
+ * Month-to-month rentals and no security deposit were confirmed 2026-11-06.
+ * The deposit was already on the Catoosa rate card. Clock hours were not.
  *
  * Monthly rates and "$25 one-time admin fee, no security deposit" are published
  * from the WebSelfStorage Catoosa rate card (facility 1030704, read 2026-10-25)
@@ -139,7 +177,7 @@ export const NAV = [
 export const FEATURES = [
   {
     title: 'Climate-controlled units',
-    body: 'Indoor units. You walk in a door and the units are along a hallway — not drive-up. Temperature and humidity are controlled, so North Georgia summers stay out of your furniture, electronics and paperwork.',
+    body: `Indoor units. You walk in a door and the units are along a hallway — not drive-up. Temperature is held between ${CLIMATE_TEMPERATURE.lowF} and ${CLIMATE_TEMPERATURE.highF}°F. Humidity is controlled too, but that is not a humidity number or a promise that mold cannot grow.`,
   },
   {
     title: 'Sealed storage containers',
@@ -155,7 +193,7 @@ export const FEATURES = [
   },
   {
     title: 'Just off Cloud Springs Road',
-    body: 'A tenth of a mile up Mack Smith Road — minutes from Fort Oglethorpe, Rossville and the Tennessee line.',
+    body: 'A tenth of a mile north of Cloud Springs Road (GA-146), in Rossville. The Tennessee line is about a mile north.',
   },
 ] as const;
 

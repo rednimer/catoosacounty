@@ -4,14 +4,15 @@
  *
  * Prices come from src/data/units.ts. Climate units are interior hallway
  * units — never described as drive-up. The sealed container is not climate
- * control. No setpoints, reviews, rankings, or rate-lock claims.
+ * control. Temperature 65–80°F is confirmed and is not a humidity guarantee.
+ * No reviews, rankings, or rate-lock claims.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Figure from '../../components/Figure.astro';
 import BlogAside from '../../components/BlogAside.astro';
-import { CONTACT, ADDRESS } from '../../data/site';
+import { CONTACT, ADDRESS, climateTemperaturePlain } from '../../data/site';
 import { IMAGES } from '../../data/images';
 import {
   CLIMATE_UNITS,
@@ -85,16 +86,21 @@ const crumbs = [
           board that water is corrosion.
         </p>
         <p class="mt-4 text-lg leading-relaxed text-ink-600">
-          A climate-controlled unit holds temperature and humidity steadier. We do
-          not publish a setpoint. Call {CONTACT.phoneDisplay} if you need the
-          current targets. The
+          {climateTemperaturePlain()} Humidity is controlled as well. We do not
+          publish a humidity number. Call {CONTACT.phoneDisplay} if you need to
+          ask about a specific item. The
           <a
             href="/climate-controlled-storage"
             class="font-semibold text-brand-700 underline underline-offset-2"
           >
             climate-controlled storage page
           </a>
-          is the short version of the same point.
+          is the short version of the same point. Mold, clothes, and pests are
+          answered on the
+          <a href="/faq#mold" class="font-semibold text-brand-700 underline underline-offset-2">
+            questions page
+          </a>
+          without a promise that climate control eliminates them.
         </p>
 
         <h2 class="mt-12 text-headline font-semibold">Wood furniture</h2>
@@ -165,7 +171,7 @@ const crumbs = [
           image={IMAGES.interiorClimateCorridor}
           sizes="(min-width: 1024px) 44rem, 100vw"
           class="mt-8"
-          caption="Inside the climate-controlled building: a hallway of interior units, not drive-up doors."
+          caption="Owner photograph of the indoor climate-controlled hallway. Units are along the corridor, not drive-up."
         />
 
         <h2 class="mt-12 text-headline font-semibold">Packing so climate control can work</h2>

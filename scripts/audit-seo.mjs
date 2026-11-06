@@ -70,6 +70,7 @@ function textOf(html, re) {
 
 function jsonLdTypes(html) {
   const types = [];
+  const nodes = [];
   const blocks = html.matchAll(
     /<script\b[\s\S]*?type="application\/ld\+json"[\s\S]*?>([\s\S]*?)<\/script>/g,
   );
@@ -78,17 +79,28 @@ function jsonLdTypes(html) {
     try {
       data = JSON.parse(block[1]);
     } catch (err) {
-      return { error: err instanceof Error ? err.message : String(err), types };
+      return { error: err instanceof Error ? err.message : String(err), types, nodes };
     }
-    const nodes = Array.isArray(data['@graph']) ? data['@graph'] : [data];
-    for (const node of nodes) {
+    const graph = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+    for (const node of graph) {
+      nodes.push(node);
       const t = node?.['@type'];
       if (Array.isArray(t)) types.push(...t);
       else if (typeof t === 'string') types.push(t);
-      else return { error: 'a JSON-LD node is missing @type', types };
+      else return { error: 'a JSON-LD node is missing @type', types, nodes };
     }
   }
-  return { types };
+  return { types, nodes };
+}
+
+function normText(value) {
+  return String(value ?? '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 for (const file of pages) {
@@ -159,6 +171,33 @@ for (const file of pages) {
   const ld = jsonLdTypes(html);
   if (ld.error) errors.push(`${rel}: JSON-LD does not parse (${ld.error})`);
   else if (ld.types.length === 0) errors.push(`${rel}: missing JSON-LD`);
+  else {
+    const visible = normText(html);
+    for (const node of ld.nodes) {
+      if (node['@type'] !== 'FAQPage') continue;
+      for (const q of node.mainEntity ?? []) {
+        const name = normText(q.name);
+        const answer = normText(q.acceptedAnswer?.text);
+        if (name && !visible.includes(name)) {
+          errors.push(`${rel}: FAQ schema question not visible: ${name}`);
+        }
+        if (answer && !visible.includes(answer)) {
+          errors.push(`${rel}: FAQ schema answer not visible: ${answer.slice(0, 80)}`);
+        }
+      }
+    }
+    for (const node of ld.nodes) {
+      if (node['@type'] !== 'BlogPosting') continue;
+      const headline = normText(node.headline);
+      if (headline && headline !== h1) {
+        errors.push(`${rel}: BlogPosting headline does not match h1`);
+      }
+    }
+  }
+
+  if (/,\d/.test(normText(html))) {
+    errors.push(`${rel}: comma glued to a digit (missing space)`);
+  }
 
   const isBlogPost = /^blog\/(?!index\.html$)[^/]+\.html$/.test(rel);
   if (isBlogPost) {

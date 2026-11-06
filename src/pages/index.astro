@@ -18,7 +18,16 @@ import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
 import Figure from '../components/Figure.astro';
 import ReviewBand from '../components/ReviewBand.astro';
-import { SITE, CONTACT, ADDRESS, HOURS, FEATURES, SERVICE_AREA } from '../data/site';
+import {
+  SITE,
+  CONTACT,
+  ADDRESS,
+  FEATURES,
+  SERVICE_AREA,
+  accessAndOfficeNote,
+  climateTemperaturePlain,
+  FROM_FORT_OGLETHORPE,
+} from '../data/site';
 import {
   CLIMATE_UNITS,
   DRIVE_UP_UNITS,
@@ -38,12 +47,11 @@ const faqs = [
   },
   {
     question: 'What is the difference between climate-controlled units, containers, and drive-up?',
-    answer:
-      'Climate-controlled units are indoors. You walk in a door and the units are along a hallway. They are not drive-up. Temperature and humidity are controlled, which protects furniture, electronics, photographs and paperwork through a Georgia summer. Sealed, dust-free storage containers are a separate premium option at $100 a month and are not climate-controlled. Drive-up units let you pull up to the door and are not climate-controlled.',
+    answer: `Climate-controlled units are indoors. You walk in a door and the units are along a hallway. They are not drive-up. ${climateTemperaturePlain()} Sealed, dust-free storage containers are a separate option at $100 a month and are not climate-controlled. Drive-up units let you pull up to the door and are not climate-controlled.`,
   },
   {
     question: 'How much does a unit cost?',
-    answer: `${PRICING_SUMMARY} ${RATE_TERMS} Call ${CONTACT.phoneDisplay} to check what is open today.`,
+    answer: `${PRICING_SUMMARY} Each figure is the published monthly rate for that unit, not a surcharge on another price. ${RATE_TERMS} Call ${CONTACT.phoneDisplay} to check what is open today.`,
   },
   {
     question: 'What size unit do I need?',
@@ -52,7 +60,7 @@ const faqs = [
   },
   {
     question: 'Do you serve Fort Oglethorpe and Chattanooga?',
-    answer: `Yes. We are just off Cloud Springs Road, a short drive from Fort Oglethorpe and Rossville, and about a mile south of the Tennessee line — so East Ridge and south Chattanooga are close too.`,
+    answer: `Yes. ${FROM_FORT_OGLETHORPE} ${ADDRESS.accessNote} The Tennessee line is about a mile north. Directions from Chattanooga are on their own page.`,
   },
 ];
 ---
@@ -80,14 +88,14 @@ const faqs = [
             Rossville &middot; Fort Oglethorpe &middot; Catoosa County
           </p>
           <h1 class="mt-5 text-display font-semibold leading-[1.03]">
-            Climate-controlled storage
-            in <span class="text-accent-700">Rossville</span>.
+            Climate-controlled storage in <span class="text-accent-700">Rossville</span>.
           </h1>
           <p class="mt-6 text-lg leading-relaxed text-ink-600 sm:text-xl">
             Indoor climate-controlled units — you walk in a door and the units
             are along a hallway — for the things that warp, rust and mildew in a
-            Georgia summer. Sealed, dust-free containers sit alongside them.
-            Drive-up units, which are not climate-controlled, are here too.
+            Georgia summer. {climateTemperaturePlain()} Sealed, dust-free
+            containers sit alongside them. Drive-up units, which are not
+            climate-controlled, are here too.
           </p>
 
           <div class="mt-9 flex flex-wrap gap-3">
@@ -99,7 +107,7 @@ const faqs = [
 
           <p class="mt-8 text-sm text-ink-600">
             {ADDRESS.formatted}
-            {!HOURS.published && <> &middot; {HOURS.fallbackNote}</>}
+            {' '}&middot; {accessAndOfficeNote()}
           </p>
         </div>
 
@@ -108,6 +116,7 @@ const faqs = [
           sizes="(min-width: 1024px) 42rem, 100vw"
           ratio="4/3"
           priority
+          caption="Owner photograph of the indoor climate-controlled hallway. Units are along the corridor, not drive-up."
         />
       </div>
     </div>
@@ -316,8 +325,8 @@ const faqs = [
             }
           </ul>
           <p class="mt-6 text-sm leading-relaxed text-brand-200">
-            The Tennessee line is about a mile north, so storing on the Georgia
-            side is a short drive from East Ridge and south Chattanooga.
+            The Tennessee line is about a mile north, so East Ridge and south
+            Chattanooga are on the other side of that line.
             <a
               href="/blog/climate-controlled-storage-near-chattanooga"
               class="font-semibold text-white underline underline-offset-2"
@@ -337,9 +346,16 @@ const faqs = [
       <div class="mt-8">
         <FaqAccordion faqs={faqs} />
       </div>
-      <p class="mt-6 text-sm text-ink-600">
-        More on the <a href="/faq" class="font-semibold text-brand-700 underline underline-offset-2">FAQ page</a>.
-      </p>
+        <p class="mt-6 text-sm text-ink-600">
+          More on the <a href="/faq" class="font-semibold text-brand-700 underline underline-offset-2">questions page</a>,
+          including whether climate control is worth it, mold, clothes, pests, and the drive from Fort Oglethorpe.
+        </p>
+        <ul class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
+          <li><a href="/faq#worth-it" class="inline-flex min-h-11 items-center text-brand-700 underline underline-offset-2">Worth it in Georgia</a></li>
+          <li><a href="/faq#cost" class="inline-flex min-h-11 items-center text-brand-700 underline underline-offset-2">Climate and drive-up rates</a></li>
+          <li><a href="/units" class="inline-flex min-h-11 items-center text-brand-700 underline underline-offset-2">Units and pricing</a></li>
+          <li><a href="/reserve" class="inline-flex min-h-11 items-center text-brand-700 underline underline-offset-2">Check availability</a></li>
+        </ul>
     </div>
   </section>
 

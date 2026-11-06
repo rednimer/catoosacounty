@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { CONTACT, HOURS, ADDRESS } from '../../data/site';
+import { CONTACT, HOURS, ADDRESS, accessAndOfficeNote } from '../../data/site';
 ---
 
 <BaseLayout
@@ -37,7 +37,7 @@ import { CONTACT, HOURS, ADDRESS } from '../../data/site';
               ))}
             </dl>
           ) : (
-            <p class="mt-3 text-sm text-ink-600">{HOURS.fallbackNote}.</p>
+            <p class="mt-3 text-sm text-ink-600">{accessAndOfficeNote()}</p>
           )
         }
       </div>
