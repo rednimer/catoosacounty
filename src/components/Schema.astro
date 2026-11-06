@@ -42,10 +42,24 @@ const businessId = `${SITE.url}/#business`;
  * "7:00 am – 9:00 pm" → { opens: '07:00', closes: '21:00' }.
  *
  * Returns {} for anything it cannot parse (e.g. "Closed", "By appointment") so an
- * unparseable string degrades to an entry with no times rather than a wrong one.
- * Currently unreached — HOURS.published is false — but it must stay correct for
- * the moment the owner supplies real hours.
+ * unparseable string is omitted rather than published as a wrong open/close time.
+ * "Daily" expands to the seven schema.org day names. "24/7 access available" is
+ * not an opening hour and is never passed here.
  */
+const SCHEMA_WEEK = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+] as const;
+
+function schemaDayNames(label: string): readonly string[] {
+  if (label.toLowerCase() === 'daily') return SCHEMA_WEEK;
+  return [label];
+}
 function parseHours(range: string): { opens?: string; closes?: string } {
   const match = range.match(
     /(\d{1,2}):(\d{2})\s*(am|pm)\s*[–—-]\s*(\d{1,2}):(\d{2})\s*(am|pm)/i,
@@ -100,17 +114,22 @@ const business = {
       longitude: ADDRESS.geo.lng,
     },
   }),
-  // [GAP] Hours are unpublished and unconfirmed. Omitted until the owner supplies
-  // them — an invented opening time is the single most damaging thing to get wrong.
-  ...(HOURS.published && HOURS.gate
-    ? {
-        openingHoursSpecification: HOURS.gate.days.map((d) => ({
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: d.day,
-          ...parseHours(d.hours),
-        })),
-      }
-    : {}),
+  // Gate hours only. Office "by appointment" has no clock time, and the
+  // "24/7 access available" phrase is not a second schedule.
+  ...(() => {
+    if (!HOURS.published || !HOURS.gate) return {};
+    const specs = HOURS.gate.days.flatMap((d) => {
+      const times = parseHours(d.hours);
+      if (!times.opens || !times.closes) return [];
+      return schemaDayNames(d.day).map((day) => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: day,
+        opens: times.opens,
+        closes: times.closes,
+      }));
+    });
+    return specs.length ? { openingHoursSpecification: specs } : {};
+  })(),
   // Only advertise an offer catalogue once real rates exist — never emit a
   // price of 0 or a placeholder, which would be a structured-data violation.
   // Availability is omitted on purpose: the rate card is a price list, not a

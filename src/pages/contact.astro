@@ -41,15 +41,30 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComp
           {CONTACT.phoneDisplay}
         </a>
         {
-          HOURS.published && HOURS.office ? (
-            <dl class="mt-4 space-y-1 text-sm">
-              {HOURS.office.days.map((d) => (
-                <div class="flex justify-between gap-3">
-                  <dt class="text-ink-600">{d.day}</dt>
-                  <dd class="font-medium text-brand-800">{d.hours}</dd>
-                </div>
-              ))}
-            </dl>
+          HOURS.published && HOURS.gate && HOURS.office ? (
+            <>
+              <h3 class="mt-4 text-sm font-semibold text-brand-800">{HOURS.gate.label}</h3>
+              {HOURS.gate.note && (
+                <p class="mt-1 text-sm leading-relaxed text-ink-600">{HOURS.gate.note}</p>
+              )}
+              <dl class="mt-2 space-y-1 text-sm">
+                {HOURS.gate.days.map((d) => (
+                  <div class="flex justify-between gap-3">
+                    <dt class="text-ink-600">{d.day}</dt>
+                    <dd class="font-medium text-brand-800">{d.hours}</dd>
+                  </div>
+                ))}
+              </dl>
+              <h3 class="mt-4 text-sm font-semibold text-brand-800">{HOURS.office.label}</h3>
+              <dl class="mt-2 space-y-1 text-sm">
+                {HOURS.office.days.map((d) => (
+                  <div class="flex justify-between gap-3">
+                    <dt class="text-ink-600">{d.day}</dt>
+                    <dd class="font-medium text-brand-800">{d.hours}</dd>
+                  </div>
+                ))}
+              </dl>
+            </>
           ) : (
             <p class="mt-4 text-sm leading-relaxed text-ink-600">
               {accessAndOfficeNote()}

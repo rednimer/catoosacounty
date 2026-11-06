@@ -83,28 +83,35 @@ export const ADDRESS = {
 } as const;
 
 /**
- * [GAP — BLOCKER] Hours are NOT published on the live site and were invented by the
- * May build. The only third-party signal is YellowPages' "9:00 am – 5:00 pm daily",
- * which is not a reliable source.
+ * Published portfolio hours, confirmed from the 2026-09-28 record.
+ * Restored 2026-11-06: "gate hours and office hours are as we published earlier."
  *
- * `published: false` makes every hours block on the site degrade to
- * "Call for current hours" instead of guessing, and Schema.astro omits
- * openingHoursSpecification entirely.
+ * Office: Monday–Friday 9:00 am – 5:00 pm, Saturday 9:00 am – 4:00 pm,
+ * Sunday by appointment.
+ * Gate: 5:00 am – 9:00 pm daily.
  *
- * Per the playbook: never assume a clock schedule, and never overstate gate access.
- * Flip to true and fill in `office` / `gate` only when the owner supplies the hours.
- *
- * Confirmed 2026-11-06, separately from clock hours: the access phrase is exactly
- * `24/7 access available`. That confirmation did not include office or gate
- * open/close times, so those stay on the call fallback. Do not copy the phrase
- * into openingHoursSpecification — a 24/7 schema hours block would invent a
- * schedule the confirmation did not give.
+ * `24/7 access available` is a separate phrase. It is not the gate schedule and
+ * must not be encoded as 24-hour openingHoursSpecification. No fee, code, or
+ * activation rule was confirmed — the site says to call to arrange access
+ * outside the gate hours.
  */
 export const HOURS = {
-  published: false,
+  published: true,
   fallbackNote: 'Call for current office and gate hours',
-  office: null as { label: string; note?: string; days: { day: string; hours: string }[] } | null,
-  gate: null as { label: string; note?: string; days: { day: string; hours: string }[] } | null,
+  office: {
+    label: 'Office',
+    note: '',
+    days: [
+      { day: 'Monday–Friday', hours: '9:00 am – 5:00 pm' },
+      { day: 'Saturday', hours: '9:00 am – 4:00 pm' },
+      { day: 'Sunday', hours: 'by appointment' },
+    ],
+  },
+  gate: {
+    label: 'Gate',
+    note: '24/7 access available. That is separate from these gate hours. Call to arrange access outside them.',
+    days: [{ day: 'Daily', hours: '5:00 am – 9:00 pm' }],
+  },
 } as const;
 
 /** Confirmed 2026-11-06. Exact wording. Not an office-hours schedule. */
@@ -122,11 +129,17 @@ export function climateTemperaturePlain(): string {
   return `Indoor climate-controlled units are held between ${lowF} and ${highF}°F. That is a temperature range, not a humidity setpoint, and it is not a guarantee that mold will not grow.`;
 }
 
-/** Access phrase plus the call fallback, until real office/gate hours exist. */
+/**
+ * The access phrase, then the published gate and office clocks.
+ * Does not describe how after-hours access is turned on, or what it costs.
+ */
 export function accessAndOfficeNote(): string {
-  return HOURS.published
-    ? `${ACCESS_AVAILABLE}.`
-    : `${ACCESS_AVAILABLE}. ${HOURS.fallbackNote}.`;
+  if (!HOURS.published || !HOURS.gate || !HOURS.office) {
+    return `${ACCESS_AVAILABLE}. ${HOURS.fallbackNote}.`;
+  }
+  const gate = HOURS.gate.days.map((d) => `${d.day} ${d.hours}`).join('; ');
+  const office = HOURS.office.days.map((d) => `${d.day} ${d.hours}`).join(', ');
+  return `${ACCESS_AVAILABLE}. That is separate from standard gate hours (${gate}). Call to arrange access outside those hours. Office hours are ${office}.`;
 }
 
 /**
