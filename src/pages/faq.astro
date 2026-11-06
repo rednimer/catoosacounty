@@ -4,7 +4,7 @@
  *
  * Grouped, with FAQPage schema emitted from the same array that renders the page.
  *
- * Office and gate clock hours are still unpublished. The access phrase and the
+ * Office and gate hours are the published schedule in src/data/site.ts. The access phrase and the
  * 65–80°F temperature range are confirmed separately and are not a humidity
  * guarantee. Admin fee and no security deposit come from the rate card.
  * Month-to-month was confirmed 2026-11-06. Do not invent pest treatment,
@@ -191,8 +191,8 @@ const allFaqs = GROUPS.flatMap((g) => g.faqs);
       <div class="rounded-card border border-brand-200/70 bg-brand-50 p-6 sm:p-8">
         <h2 class="text-xl font-semibold">Something we have not covered?</h2>
         <p class="mt-2 leading-relaxed text-ink-600">
-          Office clock hours, insurance, and what to bring on move-in day are not
-          published here. Calling is how you get those.
+          Insurance and what to bring on move-in day are not published here.
+          Calling is how you get those.
         </p>
         <div class="mt-5 flex flex-wrap gap-3">
           <a href={CONTACT.phoneHref} class="btn-primary !py-2.5 !text-sm">
