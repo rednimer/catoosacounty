@@ -31,6 +31,13 @@ interface FaqItem {
   answer: string;
 }
 
+interface ArticleMeta {
+  headline: string;
+  description: string;
+  datePublished: string;
+  dateModified?: string;
+}
+
 interface Props {
   title: string;
   description: string;
@@ -40,6 +47,8 @@ interface Props {
   ogImage?: string;
   breadcrumbs?: Breadcrumb[];
   faqs?: FaqItem[];
+  /** BlogPosting JSON-LD. Pass only on articles. Headline must match the h1. */
+  article?: ArticleMeta;
   /** Set on pages that should not be indexed (e.g. form thank-you). */
   noindex?: boolean;
 }
@@ -51,6 +60,7 @@ const {
   ogImage = '/og-default.jpg',
   breadcrumbs = [],
   faqs = [],
+  article,
   noindex = false,
 } = Astro.props;
 
@@ -140,7 +150,11 @@ const ogImageUrl = new URL(ogImage, SITE.url).href;
     <!-- Matches --color-brand-800; keep in sync with global.css. -->
     <meta name="theme-color" content="#0e3a5c" />
 
-    <Schema breadcrumbs={breadcrumbs} faqs={faqs} />
+    <Schema
+      breadcrumbs={breadcrumbs}
+      faqs={faqs}
+      article={article ? { ...article, pageUrl: canonicalUrl } : undefined}
+    />
 
     <!-- Google tag (gtag.js) -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-Q1C1F9ZLF0"></script>

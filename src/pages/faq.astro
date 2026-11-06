@@ -4,16 +4,24 @@
  *
  * Grouped, with FAQPage schema emitted from the same array that renders the page.
  *
- * Note what is NOT answered here: gate hours, access codes, security, minimum term,
- * insurance and locks. The admin fee and the absence of a security deposit are
- * published from the Catoosa rate card — see src/data/units.ts. Inventing the
- * rest is exactly what the previous build did.
+ * Office and gate clock hours are still unpublished. The access phrase and the
+ * 65–80°F temperature range are confirmed separately and are not a humidity
+ * guarantee. Admin fee and no security deposit come from the rate card.
+ * Month-to-month was confirmed 2026-11-06. Do not invent pest treatment,
+ * insurance, locks, or drive times.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import FaqAccordion from '../components/FaqAccordion.astro';
-import { CONTACT, ADDRESS, EXTERNAL } from '../data/site';
+import {
+  CONTACT,
+  ADDRESS,
+  EXTERNAL,
+  FROM_FORT_OGLETHORPE,
+  accessAndOfficeNote,
+  climateTemperaturePlain,
+} from '../data/site';
 import { PRICING_SUMMARY, RATE_TERMS } from '../data/units';
 
 const crumbs = [{ name: 'FAQ', href: '/faq' }];
@@ -23,17 +31,20 @@ const GROUPS = [
     heading: 'Getting a unit',
     faqs: [
       {
+        id: 'rent',
         question: 'How do I rent a unit?',
-        answer: `Tell us what you need through the availability form on this site, or call ${CONTACT.phoneDisplay}. We will confirm what is open in the size and type you want, quote the current rate, and take it from there.`,
+        answer: `Rentals are month-to-month, with no security deposit. Tell us what you need through the availability form on this site, or call ${CONTACT.phoneDisplay}. We will confirm what is open in the size and type you want and quote the current rate. ${RATE_TERMS}`,
       },
       {
-        question: 'How much does it cost?',
-        answer: `${PRICING_SUMMARY} ${RATE_TERMS} Call ${CONTACT.phoneDisplay} to check what is open today.`,
+        id: 'cost',
+        question: 'How much does climate-controlled storage cost?',
+        answer: `${PRICING_SUMMARY} Each figure is the published monthly rate for that unit. The climate rates are not a surcharge on the drive-up rates. ${RATE_TERMS} Call ${CONTACT.phoneDisplay} to check what is open today.`,
       },
       {
+        id: 'size',
         question: 'What size do I need?',
         answer:
-          'Roughly: a 5x10 takes a studio, a 10x10 a one or two-bedroom, and a 10x20 a three or four-bedroom house. The size guide breaks each one down by what actually fits. If you are between two, call us — going one size too small and moving twice is the expensive mistake.',
+          'Roughly: a 5x10 takes a studio, a 10x10 a one or two-bedroom, and a 10x20 a three or four-bedroom house. The size guide adds the caveat for each indoor size, including when a mattress and a sofa fill the floor or a two-bedroom with appliances needs the larger unit. If you are between two, call us. Going one size too small and moving twice is the expensive mistake.',
       },
       {
         question: 'Can I see a unit before I commit?',
@@ -42,22 +53,46 @@ const GROUPS = [
     ],
   },
   {
-    heading: 'Climate control vs drive-up',
+    heading: 'Climate control',
     faqs: [
       {
-        question: 'What is the difference?',
+        question: 'What is the difference between climate units, containers, and drive-up?',
         answer:
-          'Climate-controlled units are indoors. You walk in a door and the units are along a hallway. They are not drive-up. Temperature and humidity are controlled, which protects anything that reacts to damp and heat — wood, upholstery, electronics, paper, photographs. Sealed, dust-free containers are a separate premium option and are not climate-controlled. Drive-up units let you pull a vehicle straight to the door. They are not climate-controlled, and they cost less.',
+          'Climate-controlled units are indoors. You walk in a door and the units are along a hallway. They are not drive-up. Sealed, dust-free containers are a separate option and are not climate-controlled. Drive-up units let you pull a vehicle straight to the door. They are not climate-controlled.',
       },
       {
-        question: 'Which one do I need?',
-        answer:
-          'If it is furniture, electronics, documents, instruments or anything irreplaceable, and it is staying through a summer, choose climate control. If it is tools, yard equipment, patio furniture or boxed overflow, a drive-up unit is the sensible choice.',
+        id: 'temperature',
+        question: 'What temperature are the climate-controlled units?',
+        answer: climateTemperaturePlain(),
       },
       {
-        question: 'Is humidity really the problem, or is it the heat?',
+        id: 'worth-it',
+        question: 'Is climate control worth it in Georgia?',
         answer:
-          'Humidity, mostly. North Georgia summers are long and wet, and it is the moisture that causes mildew on fabric, swelling and joint failure in wood, and corrosion inside electronics. Temperature matters, but damp is what actually ruins things.',
+          'It depends on the item and the season, not on treating the climate price as a markup. Wood furniture, electronics, documents, photographs, instruments, and mattresses are what a humid Georgia summer damages. Tools, patio furniture, and yard equipment do not need climate control. The longer packing notes are on the humidity guide. Rates for each type are in the cost answer above.',
+      },
+      {
+        id: 'mold',
+        question: 'Will climate control prevent mold?',
+        answer: `${climateTemperaturePlain()} Mold needs moisture. Goods that go in wet can still mold. Dry them first. The humidity guide covers packing.`,
+      },
+      {
+        id: 'clothes',
+        question: 'How should I store clothes so they do not smell?',
+        answer:
+          'Wash and fully dry clothes first. An odor already in the fabric will still be there later. Use a breathable garment bag or a clean bin, not a sealed bag of damp laundry. Climate control avoids the worst heat. It will not pull an existing smell out of cloth.',
+      },
+      {
+        id: 'not-climate',
+        question: 'What does not need climate control?',
+        answer:
+          'Tools, patio furniture, yard equipment, building materials, and most boxed household overflow are fine in a drive-up unit. Drive-up units are not climate-controlled. The sealed container is dust-free and is also not climate-controlled.',
+      },
+      {
+        id: 'pests',
+        question: 'How do I keep pests out of a unit?',
+        answer:
+          'Do not store food, and clean items before they go in. Keep cardboard off the floor when you can. We do not publish a pest-treatment or pest-free claim for the building.',
       },
     ],
   },
@@ -69,18 +104,42 @@ const GROUPS = [
         answer: `${ADDRESS.formatted}. ${ADDRESS.accessNote}`,
       },
       {
-        question: 'Do you serve Fort Oglethorpe, East Ridge and Chattanooga?',
+        id: 'fort-oglethorpe',
+        question: 'How do I get there from Fort Oglethorpe?',
+        answer: `${FROM_FORT_OGLETHORPE} ${ADDRESS.accessNote}`,
+      },
+      {
+        id: 'chattanooga',
+        question: 'Do you serve Chattanooga and East Ridge?',
         answer:
-          'Yes. We are just off Cloud Springs Road (GA-146) in Rossville, which puts us a short drive from Fort Oglethorpe, and the Tennessee state line is about a mile north — so East Ridge and south Chattanooga are close as well.',
+          'Yes. The building is in Rossville, about a mile south of the Tennessee line, not at a Chattanooga street address. Directions from the south side of Chattanooga are on the climate-controlled storage near Chattanooga page. East Ridge can use Mack Smith Road from Ringgold Road (US-41 / US-76).',
+      },
+      {
+        id: 'access',
+        question: 'Is access 24/7?',
+        answer: accessAndOfficeNote(),
       },
       {
         question: 'I already rent here. How do I pay?',
         answer:
-          'Payments are handled through U-Haul. There is a link in the footer of every page, or you can call the office during business hours.',
+          'Payments are handled through U-Haul. There is a link in the footer of every page, or you can call the office during office hours.',
       },
     ],
   },
 ];
+
+const HUB = [
+  { href: '/units', label: 'Units and pricing' },
+  { href: '/reserve', label: 'Check availability' },
+  { href: '/storage-unit-size-guide', label: 'Size guide' },
+  { href: '/blog/what-to-store-in-climate-controlled-storage', label: 'What to store in Georgia humidity' },
+  { href: '/blog/climate-controlled-storage-near-chattanooga', label: 'Directions from Chattanooga' },
+  { href: '#worth-it', label: 'Is climate control worth it?' },
+  { href: '#mold', label: 'Mold' },
+  { href: '#clothes', label: 'Clothes and odors' },
+  { href: '#pests', label: 'Pests' },
+  { href: '#fort-oglethorpe', label: 'From Fort Oglethorpe' },
+] as const;
 
 /** Flattened for the FAQPage schema, so markup and structured data cannot drift. */
 const allFaqs = GROUPS.flatMap((g) => g.faqs);
@@ -88,7 +147,7 @@ const allFaqs = GROUPS.flatMap((g) => g.faqs);
 
 <BaseLayout
   title="Climate-Controlled Storage FAQ"
-  description="Questions about climate-controlled storage in Rossville, GA: indoor units, sealed containers, sizes, monthly rates, and how to find us."
+  description="Climate-controlled storage questions for Rossville, GA: 65–80°F indoor units, rates, mold, clothes, and directions from Fort Oglethorpe."
   breadcrumbs={crumbs}
   faqs={allFaqs}
 >
@@ -101,6 +160,23 @@ const allFaqs = GROUPS.flatMap((g) => g.faqs);
 
   <section class="container-page py-14 sm:py-20">
     <div class="max-w-3xl space-y-14">
+      <nav aria-label="Questions and next steps">
+        <h2 class="text-xl font-semibold">On this page</h2>
+        <ul class="mt-4 flex flex-wrap gap-2">
+          {
+            HUB.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="inline-flex min-h-11 items-center rounded-full bg-brand-100 px-4 text-sm font-semibold text-brand-800 underline-offset-2 hover:underline"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
       {
         GROUPS.map((group) => (
           <div>
@@ -115,9 +191,8 @@ const allFaqs = GROUPS.flatMap((g) => g.faqs);
       <div class="rounded-card border border-brand-200/70 bg-brand-50 p-6 sm:p-8">
         <h2 class="text-xl font-semibold">Something we have not covered?</h2>
         <p class="mt-2 leading-relaxed text-ink-600">
-          Access hours, terms, insurance and what you need to bring on move-in day
-          are all easier to answer properly on the phone than in a paragraph that
-          might not match your situation.
+          Office clock hours, insurance, and what to bring on move-in day are not
+          published here. Calling is how you get those.
         </p>
         <div class="mt-5 flex flex-wrap gap-3">
           <a href={CONTACT.phoneHref} class="btn-primary !py-2.5 !text-sm">

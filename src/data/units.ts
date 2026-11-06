@@ -52,6 +52,11 @@ export interface StorageUnit {
   price: number;
   /** Shown as a scannable list on the units page. */
   goodFor: readonly string[];
+  /**
+   * Honest limit on the "what fits" line. Packing and aisle space change the
+   * result. Not a guarantee that every household of that size will fit.
+   */
+  caveat?: string;
   /** Surfaced in the "most popular" position on the homepage. Unused by the template today. */
   popular?: boolean;
 }
@@ -76,6 +81,8 @@ export const UNITS: readonly StorageUnit[] = [
     fits: 'The contents of a studio or small one-bedroom: mattress set, sofa, dining table, and a stack of boxes.',
     price: 70,
     goodFor: ['Studio apartment', 'College dorm contents', 'Bicycles', 'Business records'],
+    caveat:
+      'A mattress and a sofa can use the whole floor. If you need to reach the back, stack boxes. A large table may not fit beside both.',
   }),
   unit({
     slug: '10x10-climate',
@@ -87,6 +94,8 @@ export const UNITS: readonly StorageUnit[] = [
     fits: 'A one or two-bedroom apartment: refrigerator, washer and dryer, bedroom set, patio furniture and boxes.',
     price: 100,
     goodFor: ['Two-bedroom apartment', 'Appliances', 'Small office', 'During a renovation'],
+    caveat:
+      'A one-bedroom usually fits. A two-bedroom with a refrigerator, washer, and dryer fits only if you stack and leave a bulky extra out, or step up to a 10x20.',
     popular: true,
   }),
   unit({
@@ -99,6 +108,8 @@ export const UNITS: readonly StorageUnit[] = [
     fits: 'A three or four-bedroom house: major appliances, patio furniture, garage contents and a full load of boxes.',
     price: 150,
     goodFor: ['Whole-house move', 'Four-bedroom home', 'Contractor equipment'],
+    caveat:
+      'This is the three or four-bedroom size, not that house plus a packed garage. Leave an aisle or you cannot reach the back wall.',
   }),
   unit({
     slug: '8x20-container',
@@ -110,6 +121,8 @@ export const UNITS: readonly StorageUnit[] = [
     fits: 'An outside container, 8 feet wide by 20 feet long and 8 feet high. Sealed and dust-free. Not climate-controlled, and not drive-up.',
     price: 100,
     goodFor: ['Sealed', 'Dust-free'],
+    caveat:
+      'Sealed and dust-free is not climate control. Temperature and humidity inside this container are not held to the indoor unit range.',
   }),
   unit({
     slug: '5x10-drive-up',
@@ -171,7 +184,7 @@ export const UNIT_TYPE_LABEL: Record<UnitKind, string> = {
  * 1st month free, 2nd month free, admin fee $25, and no security deposit.
  */
 export const RATE_TERMS =
-  '1st and 2nd month free. $25 one-time admin fee, no security deposit.';
+  '1st and 2nd month free. $25 one-time admin fee, no security deposit. Month-to-month.';
 
 function listRates(kind: UnitKind): string {
   return UNITS.filter((u) => u.kind === kind)

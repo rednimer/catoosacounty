@@ -19,6 +19,8 @@
 interface FaqItem {
   question: string;
   answer: string;
+  /** In-page anchor. Schema stays the question and answer text only. */
+  id?: string;
 }
 
 interface Props {
@@ -34,7 +36,7 @@ const Heading = headingLevel;
 <div class="space-y-3">
   {
     faqs.map((faq) => (
-      <details class="group rounded-card border border-ink-200 bg-white">
+      <details id={faq.id} class="group scroll-mt-28 rounded-card border border-ink-200 bg-white">
         <summary
           class="flex cursor-pointer items-center justify-between gap-4 p-5 text-left
                  marker:content-none focus-visible:outline-2 focus-visible:outline-offset-2

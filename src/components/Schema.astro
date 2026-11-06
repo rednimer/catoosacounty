@@ -19,12 +19,22 @@ interface FaqItem {
   answer: string;
 }
 
+interface ArticleMeta {
+  headline: string;
+  description: string;
+  datePublished: string;
+  dateModified?: string;
+  /** Canonical page URL. Required so mainEntityOfPage matches the visible page. */
+  pageUrl: string;
+}
+
 interface Props {
   breadcrumbs?: Breadcrumb[];
   faqs?: FaqItem[];
+  article?: ArticleMeta;
 }
 
-const { breadcrumbs = [], faqs = [] } = Astro.props;
+const { breadcrumbs = [], faqs = [], article } = Astro.props;
 
 const businessId = `${SITE.url}/#business`;
 
@@ -32,10 +42,24 @@ const businessId = `${SITE.url}/#business`;
  * "7:00 am – 9:00 pm" → { opens: '07:00', closes: '21:00' }.
  *
  * Returns {} for anything it cannot parse (e.g. "Closed", "By appointment") so an
- * unparseable string degrades to an entry with no times rather than a wrong one.
- * Currently unreached — HOURS.published is false — but it must stay correct for
- * the moment the owner supplies real hours.
+ * unparseable string is omitted rather than published as a wrong open/close time.
+ * "Daily" expands to the seven schema.org day names. "24/7 access available" is
+ * not an opening hour and is never passed here.
  */
+const SCHEMA_WEEK = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+] as const;
+
+function schemaDayNames(label: string): readonly string[] {
+  if (label.toLowerCase() === 'daily') return SCHEMA_WEEK;
+  return [label];
+}
 function parseHours(range: string): { opens?: string; closes?: string } {
   const match = range.match(
     /(\d{1,2}):(\d{2})\s*(am|pm)\s*[–—-]\s*(\d{1,2}):(\d{2})\s*(am|pm)/i,
@@ -90,17 +114,22 @@ const business = {
       longitude: ADDRESS.geo.lng,
     },
   }),
-  // [GAP] Hours are unpublished and unconfirmed. Omitted until the owner supplies
-  // them — an invented opening time is the single most damaging thing to get wrong.
-  ...(HOURS.published && HOURS.gate
-    ? {
-        openingHoursSpecification: HOURS.gate.days.map((d) => ({
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: d.day,
-          ...parseHours(d.hours),
-        })),
-      }
-    : {}),
+  // Gate hours only. Office "by appointment" has no clock time, and the
+  // "24/7 access available" phrase is not a second schedule.
+  ...(() => {
+    if (!HOURS.published || !HOURS.gate) return {};
+    const specs = HOURS.gate.days.flatMap((d) => {
+      const times = parseHours(d.hours);
+      if (!times.opens || !times.closes) return [];
+      return schemaDayNames(d.day).map((day) => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: day,
+        opens: times.opens,
+        closes: times.closes,
+      }));
+    });
+    return specs.length ? { openingHoursSpecification: specs } : {};
+  })(),
   // Only advertise an offer catalogue once real rates exist — never emit a
   // price of 0 or a placeholder, which would be a structured-data violation.
   // Availability is omitted on purpose: the rate card is a price list, not a
@@ -132,9 +161,11 @@ const business = {
 const graph: Record<string, unknown>[] = [business];
 
 if (breadcrumbs.length) {
+  // Visible breadcrumbs always start at Home. The list has to match.
+  const trail = [{ name: 'Home', href: '/' }, ...breadcrumbs];
   graph.push({
     '@type': 'BreadcrumbList',
-    itemListElement: breadcrumbs.map((crumb, i) => ({
+    itemListElement: trail.map((crumb, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       name: crumb.name,
@@ -151,6 +182,27 @@ if (faqs.length) {
       name: f.question,
       acceptedAnswer: { '@type': 'Answer', text: f.answer },
     })),
+  });
+}
+
+if (article) {
+  // BlogPosting is a subtype of Article. Headline must match the visible h1.
+  graph.push({
+    '@type': 'BlogPosting',
+    '@id': `${article.pageUrl}#article`,
+    headline: article.headline,
+    description: article.description,
+    datePublished: article.datePublished,
+    dateModified: article.dateModified ?? article.datePublished,
+    inLanguage: 'en-US',
+    author: {
+      '@type': 'Organization',
+      name: SITE.name,
+      url: SITE.url,
+    },
+    publisher: { '@id': businessId },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': article.pageUrl },
+    about: { '@id': businessId },
   });
 }
 

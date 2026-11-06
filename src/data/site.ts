@@ -83,23 +83,71 @@ export const ADDRESS = {
 } as const;
 
 /**
- * [GAP — BLOCKER] Hours are NOT published on the live site and were invented by the
- * May build. The only third-party signal is YellowPages' "9:00 am – 5:00 pm daily",
- * which is not a reliable source.
+ * Published portfolio hours, confirmed from the 2026-09-28 record.
+ * Restored 2026-11-06: "gate hours and office hours are as we published earlier."
  *
- * `published: false` makes every hours block on the site degrade to
- * "Call for current hours" instead of guessing, and Schema.astro omits
- * openingHoursSpecification entirely.
+ * Office: Monday–Friday 9:00 am – 5:00 pm, Saturday 9:00 am – 4:00 pm,
+ * Sunday by appointment.
+ * Gate: 5:00 am – 9:00 pm daily.
  *
- * Per the playbook: never assume 24/7, and never overstate gate access.
- * Flip to true and fill in `office` / `gate` once the owner confirms.
+ * `24/7 access available` is a separate phrase. It is not the gate schedule and
+ * must not be encoded as 24-hour openingHoursSpecification. No fee, code, or
+ * activation rule was confirmed — the site says to call to arrange access
+ * outside the gate hours.
  */
 export const HOURS = {
-  published: false,
+  published: true,
   fallbackNote: 'Call for current office and gate hours',
-  office: null as { label: string; note?: string; days: { day: string; hours: string }[] } | null,
-  gate: null as { label: string; note?: string; days: { day: string; hours: string }[] } | null,
+  office: {
+    label: 'Office',
+    note: '',
+    days: [
+      { day: 'Monday–Friday', hours: '9:00 am – 5:00 pm' },
+      { day: 'Saturday', hours: '9:00 am – 4:00 pm' },
+      { day: 'Sunday', hours: 'by appointment' },
+    ],
+  },
+  gate: {
+    label: 'Gate',
+    note: '24/7 access available. That is separate from these gate hours. Call to arrange access outside them.',
+    days: [{ day: 'Daily', hours: '5:00 am – 9:00 pm' }],
+  },
 } as const;
+
+/** Confirmed 2026-11-06. Exact wording. Not an office-hours schedule. */
+export const ACCESS_AVAILABLE = '24/7 access available';
+
+/**
+ * Confirmed 2026-11-06. Temperature only.
+ * Humidity is still controlled (the longstanding product claim) but no humidity
+ * number or mold-free promise was confirmed.
+ */
+export const CLIMATE_TEMPERATURE = { lowF: 65, highF: 80 } as const;
+
+export function climateTemperaturePlain(): string {
+  const { lowF, highF } = CLIMATE_TEMPERATURE;
+  return `Indoor climate-controlled units are held between ${lowF} and ${highF}°F. That is a temperature range, not a humidity setpoint, and it is not a guarantee that mold will not grow.`;
+}
+
+/**
+ * The access phrase, then the published gate and office clocks.
+ * Does not describe how after-hours access is turned on, or what it costs.
+ */
+export function accessAndOfficeNote(): string {
+  if (!HOURS.published || !HOURS.gate || !HOURS.office) {
+    return `${ACCESS_AVAILABLE}. ${HOURS.fallbackNote}.`;
+  }
+  const gate = HOURS.gate.days.map((d) => `${d.day} ${d.hours}`).join('; ');
+  const office = HOURS.office.days.map((d) => `${d.day} ${d.hours}`).join(', ');
+  return `${ACCESS_AVAILABLE}. That is separate from standard gate hours (${gate}). Call to arrange access outside those hours. Office hours are ${office}.`;
+}
+
+/**
+ * Fort Oglethorpe approach already published on the location page.
+ * Roads only — no drive time was measured.
+ */
+export const FROM_FORT_OGLETHORPE =
+  'Take Battlefield Parkway across to Cloud Springs Road, follow it to Mack Smith Road and turn north. The office is on the right shortly after you turn in.';
 
 export const EXTERNAL = {
   /**
@@ -126,9 +174,12 @@ export const NAV = [
  * arrives and finds otherwise.
  *
  * Do NOT add without owner confirmation: gated/coded access, cameras, lighting,
- * individually locked units, paved drives, pest treatment, month-to-month terms,
- * insurance, locks, business storage, locally owned, or any drive-time claim.
+ * individually locked units, paved drives, pest treatment, insurance, locks,
+ * business storage, locally owned, or any drive-time claim.
  * All of those appeared as fact in the May build with no source.
+ *
+ * Month-to-month rentals and no security deposit were confirmed 2026-11-06.
+ * The deposit was already on the Catoosa rate card. Clock hours were not.
  *
  * Monthly rates and "$25 one-time admin fee, no security deposit" are published
  * from the WebSelfStorage Catoosa rate card (facility 1030704, read 2026-10-25)
@@ -139,7 +190,7 @@ export const NAV = [
 export const FEATURES = [
   {
     title: 'Climate-controlled units',
-    body: 'Indoor units. You walk in a door and the units are along a hallway — not drive-up. Temperature and humidity are controlled, so North Georgia summers stay out of your furniture, electronics and paperwork.',
+    body: `Indoor units. You walk in a door and the units are along a hallway — not drive-up. Temperature is held between ${CLIMATE_TEMPERATURE.lowF} and ${CLIMATE_TEMPERATURE.highF}°F. Humidity is controlled too, but that is not a humidity number or a promise that mold cannot grow.`,
   },
   {
     title: 'Sealed storage containers',
@@ -155,7 +206,7 @@ export const FEATURES = [
   },
   {
     title: 'Just off Cloud Springs Road',
-    body: 'A tenth of a mile up Mack Smith Road — minutes from Fort Oglethorpe, Rossville and the Tennessee line.',
+    body: 'A tenth of a mile north of Cloud Springs Road (GA-146), in Rossville. The Tennessee line is about a mile north.',
   },
 ] as const;
 

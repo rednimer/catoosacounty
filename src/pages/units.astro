@@ -95,7 +95,10 @@ const crumbs = [{ name: 'Units & Pricing', href: '/units' }];
                 </th>
                 <td class="py-5 pr-4 text-sm text-ink-600">{u.sqft} sq ft</td>
                 <td class="py-5 pr-4 text-sm font-medium text-accent-700">{u.comparableTo}</td>
-                <td class="max-w-sm py-5 pr-4 text-sm leading-relaxed text-ink-600">{u.fits}</td>
+                <td class="max-w-sm py-5 pr-4 text-sm leading-relaxed text-ink-600">
+                  {u.fits}
+                  {u.caveat && <span class="mt-2 block">{u.caveat}</span>}
+                </td>
                 <td class="py-5 pr-4 text-sm text-ink-600">{UNIT_TYPE_LABEL[u.kind]}</td>
                 <td class="whitespace-nowrap py-5 text-sm font-semibold text-brand-800">
                   {formatPrice(u.price)}
@@ -118,7 +121,10 @@ const crumbs = [{ name: 'Units & Pricing', href: '/units' }];
             </div>
             <p class="mt-1 text-sm text-ink-600">{UNIT_TYPE_LABEL[u.kind]}</p>
             <p class="mt-1 font-medium text-accent-700">{u.comparableTo}</p>
-            <p class="mt-3 text-sm leading-relaxed text-ink-600">{u.fits}</p>
+            <p class="mt-3 text-sm leading-relaxed text-ink-600">
+              {u.fits}
+              {u.caveat && <span class="mt-2 block">{u.caveat}</span>}
+            </p>
             <ul class="mt-4 flex flex-wrap gap-2">
               {u.goodFor.map((g) => (
                 <li class="rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-800">
@@ -146,7 +152,10 @@ const crumbs = [{ name: 'Units & Pricing', href: '/units' }];
       <p class="text-sm font-semibold uppercase tracking-widest text-accent-700">Premium option</p>
       <h2 class="mt-2 text-headline font-semibold">Sealed storage containers</h2>
       <p class="mt-3 text-3xl font-bold text-brand-800">{formatPrice(CONTAINERS[0].price)}</p>
-      <p class="mt-3 max-w-2xl leading-relaxed text-ink-600">{CONTAINERS[0].fits}</p>
+      <p class="mt-3 max-w-2xl leading-relaxed text-ink-600">
+        {CONTAINERS[0].fits}
+        {CONTAINERS[0].caveat && <span class="mt-2 block">{CONTAINERS[0].caveat}</span>}
+      </p>
       <p class="mt-4 text-sm text-ink-600">{RATE_TERMS}</p>
       <a
         href={`/reserve?size=${CONTAINERS[0].slug}`}

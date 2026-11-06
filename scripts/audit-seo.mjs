@@ -19,12 +19,13 @@ const DIST = 'dist';
  * canonical against the previous site's domain and failed all ten pages. A guard
  * that has to be edited per project is a guard that eventually lies.
  */
-const ORIGIN = readFileSync(join('src', 'data', 'site.ts'), 'utf8').match(
-  /url:\s*'([^']+)'/,
-)?.[1];
+const SITE_TS = readFileSync(join('src', 'data', 'site.ts'), 'utf8');
+const ORIGIN = SITE_TS.match(/url:\s*'([^']+)'/)?.[1];
+const PHONE = SITE_TS.match(/phoneDisplay:\s*'([^']+)'/)?.[1];
+const STREET = SITE_TS.match(/street:\s*'([^']+)'/)?.[1];
 
-if (!ORIGIN) {
-  console.error('✗ Could not read SITE.url from src/data/site.ts.');
+if (!ORIGIN || !PHONE || !STREET) {
+  console.error('✗ Could not read SITE.url, phone, or street from src/data/site.ts.');
   process.exit(1);
 }
 
@@ -56,8 +57,51 @@ const warnings = [];
 // ── Per-page checks ─────────────────────────────────────────────────────────
 const pages = walk(DIST);
 const titles = new Map();
+const h1s = new Map();
 const descs = new Map();
 const canonicals = new Set();
+
+function textOf(html, re) {
+  return (html.match(re)?.[1] ?? '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function jsonLdTypes(html) {
+  const types = [];
+  const nodes = [];
+  const blocks = html.matchAll(
+    /<script\b[\s\S]*?type="application\/ld\+json"[\s\S]*?>([\s\S]*?)<\/script>/g,
+  );
+  for (const block of blocks) {
+    let data;
+    try {
+      data = JSON.parse(block[1]);
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : String(err), types, nodes };
+    }
+    const graph = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+    for (const node of graph) {
+      nodes.push(node);
+      const t = node?.['@type'];
+      if (Array.isArray(t)) types.push(...t);
+      else if (typeof t === 'string') types.push(t);
+      else return { error: 'a JSON-LD node is missing @type', types, nodes };
+    }
+  }
+  return { types, nodes };
+}
+
+function normText(value) {
+  return String(value ?? '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 for (const file of pages) {
   const rel = relative(DIST, file).replace(/\\/g, '/');
@@ -119,6 +163,49 @@ for (const file of pages) {
 
   const h1Count = (html.match(/<h1[\s>]/g) || []).length;
   if (h1Count !== 1) errors.push(`${rel}: ${h1Count} <h1> elements, expected exactly 1`);
+  const h1 = textOf(html, /<h1[^>]*>([\s\S]*?)<\/h1>/);
+
+  if (!html.includes(PHONE)) errors.push(`${rel}: missing phone ${PHONE}`);
+  if (!html.includes(STREET)) errors.push(`${rel}: missing street ${STREET}`);
+
+  const ld = jsonLdTypes(html);
+  if (ld.error) errors.push(`${rel}: JSON-LD does not parse (${ld.error})`);
+  else if (ld.types.length === 0) errors.push(`${rel}: missing JSON-LD`);
+  else {
+    const visible = normText(html);
+    for (const node of ld.nodes) {
+      if (node['@type'] !== 'FAQPage') continue;
+      for (const q of node.mainEntity ?? []) {
+        const name = normText(q.name);
+        const answer = normText(q.acceptedAnswer?.text);
+        if (name && !visible.includes(name)) {
+          errors.push(`${rel}: FAQ schema question not visible: ${name}`);
+        }
+        if (answer && !visible.includes(answer)) {
+          errors.push(`${rel}: FAQ schema answer not visible: ${answer.slice(0, 80)}`);
+        }
+      }
+    }
+    for (const node of ld.nodes) {
+      if (node['@type'] !== 'BlogPosting') continue;
+      const headline = normText(node.headline);
+      if (headline && headline !== h1) {
+        errors.push(`${rel}: BlogPosting headline does not match h1`);
+      }
+    }
+  }
+
+  if (/,\d/.test(normText(html))) {
+    errors.push(`${rel}: comma glued to a digit (missing space)`);
+  }
+
+  const isBlogPost = /^blog\/(?!index\.html$)[^/]+\.html$/.test(rel);
+  if (isBlogPost) {
+    if (!ld.types.includes('BlogPosting')) errors.push(`${rel}: blog post missing BlogPosting`);
+    if (!ld.types.includes('BreadcrumbList')) errors.push(`${rel}: blog post missing BreadcrumbList`);
+    if (!html.includes('href="/units"')) errors.push(`${rel}: blog post missing link to /units`);
+    if (!html.includes('href="/reserve"')) errors.push(`${rel}: blog post missing link to /reserve`);
+  }
 
   /*
    * `alt(?:=|[\s>])`, not `alt=`.
@@ -136,13 +223,20 @@ for (const file of pages) {
   // Only index-eligible pages participate in duplicate + sitemap checks.
   if (!noindex) {
     titles.set(title, [...(titles.get(title) ?? []), rel]);
+    if (h1) h1s.set(h1, [...(h1s.get(h1) ?? []), rel]);
     descs.set(desc, [...(descs.get(desc) ?? []), rel]);
     canonicals.add(canonical);
+    if (!/climate/i.test(title) && !/climate/i.test(h1)) {
+      warnings.push(`${rel}: title and h1 do not mention climate`);
+    }
   }
 }
 
 for (const [title, files] of titles) {
   if (files.length > 1) errors.push(`Duplicate title "${title}" on: ${files.join(', ')}`);
+}
+for (const [h1, files] of h1s) {
+  if (files.length > 1) errors.push(`Duplicate h1 "${h1}" on: ${files.join(', ')}`);
 }
 for (const [, files] of descs) {
   if (files.length > 1) errors.push(`Duplicate meta description on: ${files.join(', ')}`);

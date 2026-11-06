@@ -14,7 +14,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import Figure from '../components/Figure.astro';
-import { CONTACT, ADDRESS, HOURS, SERVICE_AREA } from '../data/site';
+import {
+  CONTACT,
+  ADDRESS,
+  HOURS,
+  SERVICE_AREA,
+  FROM_FORT_OGLETHORPE,
+  accessAndOfficeNote,
+} from '../data/site';
 import { IMAGES } from '../data/images';
 
 const crumbs = [{ name: 'Location', href: '/location' }];
@@ -32,11 +39,11 @@ const ROUTES = [
   },
   {
     from: 'From Fort Oglethorpe',
-    body: 'Take Battlefield Parkway across to Cloud Springs Road, follow it to Mack Smith Road and turn north. The office is on the right shortly after you turn in.',
+    body: FROM_FORT_OGLETHORPE,
   },
   {
     from: 'From East Ridge & Chattanooga',
-    body: 'Come south across the state line on Ringgold Road into Rossville, then pick up Cloud Springs Road and turn north onto Mack Smith Road. We are on the right.',
+    body: 'From the south side of Chattanooga, take US-27 south into Rossville (Chickamauga Avenue, then Lafayette Road), turn left onto Cloud Springs Road (GA-146), and go north on Mack Smith Road. From East Ridge, Mack Smith Road meets Ringgold Road (US-41 / US-76).',
   },
   {
     from: 'From I-75',
@@ -87,6 +94,27 @@ const ROUTES = [
           }
         </div>
 
+        <p class="mt-8 leading-relaxed text-ink-600">
+          The Chattanooga drive is written out, turn by turn, in
+          <a
+            href="/blog/climate-controlled-storage-near-chattanooga"
+            class="font-semibold text-brand-700 underline underline-offset-2"
+          >
+            climate-controlled storage near Chattanooga
+          </a>.
+        </p>
+
+        <h2 class="mt-14 text-headline font-semibold">From Fort Oglethorpe</h2>
+        <p class="mt-3 max-w-2xl leading-relaxed text-ink-600">
+          {FROM_FORT_OGLETHORPE} {ADDRESS.accessNote} The map link is the street
+          address.
+        </p>
+        <p class="mt-4">
+          <a href="/faq#fort-oglethorpe" class="font-semibold text-brand-700 underline underline-offset-2">
+            Fort Oglethorpe directions on the questions page
+          </a>
+        </p>
+
         <h2 class="mt-14 text-headline font-semibold">Who we serve</h2>
         <p class="mt-3 max-w-2xl leading-relaxed text-ink-600">
           Mack Smith Road sits close to the Georgia–Tennessee line, so the catchment
@@ -129,17 +157,32 @@ const ROUTES = [
             {CONTACT.phoneDisplay}
           </a>
           {
-            HOURS.published && HOURS.office ? (
-              <dl class="mt-3 space-y-1 text-sm">
-                {HOURS.office.days.map((d) => (
-                  <div class="flex justify-between gap-3">
-                    <dt class="text-ink-600">{d.day}</dt>
-                    <dd class="font-medium text-brand-800">{d.hours}</dd>
-                  </div>
-                ))}
-              </dl>
+            HOURS.published && HOURS.gate && HOURS.office ? (
+              <>
+                <h3 class="mt-4 text-sm font-semibold text-brand-800">{HOURS.gate.label}</h3>
+                {HOURS.gate.note && (
+                  <p class="mt-1 text-sm leading-relaxed text-ink-600">{HOURS.gate.note}</p>
+                )}
+                <dl class="mt-2 space-y-1 text-sm">
+                  {HOURS.gate.days.map((d) => (
+                    <div class="flex justify-between gap-3">
+                      <dt class="text-ink-600">{d.day}</dt>
+                      <dd class="font-medium text-brand-800">{d.hours}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <h3 class="mt-4 text-sm font-semibold text-brand-800">{HOURS.office.label}</h3>
+                <dl class="mt-2 space-y-1 text-sm">
+                  {HOURS.office.days.map((d) => (
+                    <div class="flex justify-between gap-3">
+                      <dt class="text-ink-600">{d.day}</dt>
+                      <dd class="font-medium text-brand-800">{d.hours}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </>
             ) : (
-              <p class="mt-3 text-sm text-ink-600">{HOURS.fallbackNote}.</p>
+              <p class="mt-3 text-sm text-ink-600">{accessAndOfficeNote()}</p>
             )
           }
         </div>

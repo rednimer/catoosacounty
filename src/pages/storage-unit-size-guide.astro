@@ -37,7 +37,7 @@ const faqs = [
   {
     question: 'Should I round up or down?',
     answer:
-      'Up, nearly always. The cost difference between adjacent sizes is small next to the cost of hiring a van twice because the first unit did not close. It is also much easier to live with a unit you can walk into.',
+      'Up, if you are between sizes. A second trip because the first unit would not close costs more than stepping up a size. Leave room to walk in. The notes under each size say what often does not fit.',
   },
   {
     question: 'How high can I stack?',
@@ -112,6 +112,7 @@ const PACKING = [
 
               <div>
                 <p class="text-lg leading-relaxed text-ink-600">{u.fits}</p>
+                {u.caveat && <p class="mt-3 leading-relaxed text-ink-600">{u.caveat}</p>}
                 <h3 class="mt-6 text-sm font-semibold uppercase tracking-wider text-brand-800">
                   Typically used for
                 </h3>
@@ -141,6 +142,9 @@ const PACKING = [
       <h2 class="mt-2 text-3xl font-semibold text-brand-800">Sealed storage container</h2>
       <p class="mt-3 text-sm font-semibold text-brand-800">{formatPrice(CONTAINERS[0].price)}</p>
       <p class="mt-3 max-w-2xl text-lg leading-relaxed text-ink-600">{CONTAINERS[0].fits}</p>
+      {CONTAINERS[0].caveat && (
+        <p class="mt-3 max-w-2xl leading-relaxed text-ink-600">{CONTAINERS[0].caveat}</p>
+      )}
       <a
         href={`/reserve?size=${CONTAINERS[0].slug}`}
         class="mt-5 inline-flex min-h-11 items-center font-semibold text-brand-700 underline decoration-2 underline-offset-4"
@@ -186,8 +190,9 @@ const PACKING = [
     <div class="container-page">
       <h2 class="text-headline font-semibold">Packing so it actually fits</h2>
       <p class="mt-3 max-w-2xl text-lg text-ink-600">
-        Most people can drop a whole size by packing properly. These are the six
-        things that make the difference.
+        How you pack changes what fits. These are the habits that help. The
+        notes on each size are limits, not a promise that every household of
+        that size will fit.
       </p>
       <div class="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
         {
